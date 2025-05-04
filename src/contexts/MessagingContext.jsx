@@ -20,79 +20,136 @@ export const MessagingProvider = ({ children }) => {
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false); // Set to false for development
+  const [unreadCount, setUnreadCount] = useState(2); // Mock unread count
   
   const { isAuthenticated, user } = useAuth();
   const { error: showError, success: showSuccess } = useNotification();
 
-  // Fetch conversations when user authentication changes
+  // For development, initialize with some mock conversations
   useEffect(() => {
-    const fetchConversations = async () => {
-      if (!isAuthenticated || !user) {
-        setConversations([]);
-        setUnreadCount(0);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_URL}/messages/conversations/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch conversations");
-        }
-
-        const data = await response.json();
-        setConversations(data);
-        
-        // Calculate unread count
-        const unread = data.reduce((count, conv) => count + (conv.unread_count || 0), 0);
-        setUnreadCount(unread);
-      } catch (err) {
-        console.error("Error fetching conversations:", err);
-        showError("Failed to load conversations");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConversations();
+    // Mock conversations data
+    const mockConversations = [
+      {
+        id: 1,
+        participants: [1, 2],
+        last_message: {
+          id: 3,
+          conversation_id: 1,
+          sender_id: 1,
+          recipient_id: 2,
+          content: "I'm looking for a single room from the 10th to the 20th.",
+          read: false,
+          created_at: "2023-05-12T10:30:00Z",
+        },
+        unread_count: 1,
+        created_at: "2023-05-12T09:30:00Z",
+        updated_at: "2023-05-12T10:30:00Z",
+        sender: {
+          id: 1,
+          firstName: "John",
+          lastName: "Doe",
+          avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+        },
+        recipient: {
+          id: 2,
+          firstName: "Jane",
+          lastName: "Smith",
+          avatar: "https://randomuser.me/api/portraits/women/1.jpg",
+        },
+      },
+      {
+        id: 2,
+        participants: [1, 3],
+        last_message: {
+          id: 6,
+          conversation_id: 2,
+          sender_id: 3,
+          recipient_id: 1,
+          content: "Yes, we have availability for those dates. Would you like to book?",
+          read: false,
+          created_at: "2023-05-14T15:45:00Z",
+        },
+        unread_count: 1,
+        created_at: "2023-05-14T14:20:00Z",
+        updated_at: "2023-05-14T15:45:00Z",
+        sender: {
+          id: 1,
+          firstName: "John",
+          lastName: "Doe",
+          avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+        },
+        recipient: {
+          id: 3,
+          firstName: "Alex",
+          lastName: "Johnson",
+          avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+        },
+      },
+    ];
     
-    // Set up polling for new messages
-    const intervalId = setInterval(fetchConversations, 30000); // Poll every 30 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [isAuthenticated, user, showError]);
+    setConversations(mockConversations);
+    setLoading(false);
+  }, []);
 
   // Fetch messages for a conversation
   const fetchMessages = async (conversationId) => {
-    if (!isAuthenticated) {
-      showError("Please log in to view messages");
-      return;
-    }
-
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/messages/conversations/${conversationId}/`, {
-        headers: {
-          Authorization: `Token ${token}`,
+      
+      // Mock messages data
+      const mockMessages = [
+        {
+          id: 1,
+          conversation_id: 1,
+          sender_id: 1,
+          recipient_id: 2,
+          content: "Hi, I'm interested in booking a room at Tech Haven Hostel. Do you have any availability for next month?",
+          read: true,
+          created_at: "2023-05-12T09:30:00Z",
+          sender: {
+            id: 1,
+            firstName: "John",
+            lastName: "Doe",
+            avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+          },
         },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-
-      const data = await response.json();
-      setMessages(data.messages);
+        {
+          id: 2,
+          conversation_id: 1,
+          sender_id: 2,
+          recipient_id: 1,
+          content: "Hello! Yes, we have several rooms available for next month. What specific dates are you looking for?",
+          read: true,
+          created_at: "2023-05-12T10:15:00Z",
+          sender: {
+            id: 2,
+            firstName: "Jane",
+            lastName: "Smith",
+            avatar: "https://randomuser.me/api/portraits/women/1.jpg",
+          },
+        },
+        {
+          id: 3,
+          conversation_id: 1,
+          sender_id: 1,
+          recipient_id: 2,
+          content: "I'm looking for a single room from the 10th to the 20th.",
+          read: false,
+          created_at: "2023-05-12T10:30:00Z",
+          sender: {
+            id: 1,
+            firstName: "John",
+            lastName: "Doe",
+            avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+          },
+        },
+      ];
+      
+      // Filter messages for the requested conversation
+      const conversationMessages = mockMessages.filter(m => m.conversation_id === conversationId);
+      
+      setMessages(conversationMessages);
       
       // Set active conversation
       const conversation = conversations.find(c => c.id === conversationId);
@@ -103,7 +160,7 @@ export const MessagingProvider = ({ children }) => {
         markConversationAsRead(conversationId);
       }
       
-      return data.messages;
+      return conversationMessages;
     } catch (err) {
       console.error("Error fetching messages:", err);
       showError("Failed to load messages");
@@ -115,30 +172,23 @@ export const MessagingProvider = ({ children }) => {
 
   // Send a new message
   const sendMessage = async (recipientId, content) => {
-    if (!isAuthenticated) {
-      showError("Please log in to send messages");
-      return null;
-    }
-
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/messages/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+      // Create a new message
+      const newMessage = {
+        id: Math.floor(Math.random() * 1000) + 100, // Random ID for development
+        conversation_id: activeConversation ? activeConversation.id : null,
+        sender_id: user.id,
+        recipient_id: recipientId,
+        content,
+        read: false,
+        created_at: new Date().toISOString(),
+        sender: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          avatar: user.avatar,
         },
-        body: JSON.stringify({
-          recipient_id: recipientId,
-          content,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const newMessage = await response.json();
+      };
       
       // Update messages if this is part of the active conversation
       if (activeConversation && 
@@ -161,31 +211,50 @@ export const MessagingProvider = ({ children }) => {
 
   // Start a new conversation
   const startConversation = async (recipientId, initialMessage) => {
-    const result = await sendMessage(recipientId, initialMessage);
-    if (result) {
-      await refreshConversations();
-      return result.conversation_id;
+    try {
+      // Create a new conversation
+      const newConversation = {
+        id: conversations.length + 1,
+        participants: [user.id, recipientId],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        unread_count: 0,
+        sender: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          avatar: user.avatar,
+        },
+        recipient: {
+          id: recipientId,
+          firstName: "Hostel",
+          lastName: "Manager",
+          avatar: "https://randomuser.me/api/portraits/women/1.jpg",
+        },
+      };
+      
+      // Add the conversation
+      setConversations(prev => [...prev, newConversation]);
+      
+      // Set as active conversation
+      setActiveConversation(newConversation);
+      
+      // Send the initial message
+      if (initialMessage) {
+        await sendMessage(recipientId, initialMessage);
+      }
+      
+      return newConversation.id;
+    } catch (err) {
+      console.error("Error starting conversation:", err);
+      showError("Failed to start conversation");
+      return null;
     }
-    return null;
   };
 
   // Mark conversation as read
   const markConversationAsRead = async (conversationId) => {
-    if (!isAuthenticated) return;
-
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/messages/conversations/${conversationId}/read/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to mark conversation as read");
-      }
-
       // Update local state
       setConversations(prev => 
         prev.map(conv => 
@@ -208,29 +277,8 @@ export const MessagingProvider = ({ children }) => {
 
   // Refresh conversations list
   const refreshConversations = async () => {
-    if (!isAuthenticated) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/messages/conversations/`, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to refresh conversations");
-      }
-
-      const data = await response.json();
-      setConversations(data);
-      
-      // Calculate unread count
-      const unread = data.reduce((count, conv) => count + (conv.unread_count || 0), 0);
-      setUnreadCount(unread);
-    } catch (err) {
-      console.error("Error refreshing conversations:", err);
-    }
+    // For development, just keep the existing conversations
+    // In a real app, you would fetch updated conversations from the server
   };
 
   const value = {

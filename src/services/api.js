@@ -1,336 +1,337 @@
-import { API_URL } from "../config"
+import { API_URL, FEATURES } from '../config';
+import * as mockApi from './mockApi/mockApiService';
+
+// Check if we should use mock API
+const USE_MOCK_API = FEATURES.USE_MOCK_API;
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
+  const data = await response.json();
+  
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    const errorMessage = errorData.detail || errorData.message || `Error: ${response.status}`
-    throw new Error(errorMessage)
+    const error = data.detail || data.message || 'Something went wrong';
+    throw new Error(error);
   }
-  return response.json()
-}
+  
+  return data;
+};
 
-// Authentication services
+// Helper function to handle API errors
+const handleApiError = (error) => {
+  console.error('API Error:', error);
+  throw error;
+};
+
+// Authentication API
 export const authService = {
-  register: async (userData) => {
-    const response = await fetch(`${API_URL}/auth/register/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    })
-    return handleResponse(response)
-  },
-
   login: async (email, password) => {
-    const response = await fetch(`${API_URL}/auth/login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    })
-    return handleResponse(response)
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.authApi.login(email, password);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/auth/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
+  
+  validateToken: async (token) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.authApi.validateToken(token);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/auth/validate/`, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+      
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};
 
-  getCurrentUser: async () => {
-    const token = localStorage.getItem("token")
-    if (!token) return null
-
-    const response = await fetch(`${API_URL}/auth/user/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-
-  requestPasswordReset: async (email) => {
-    const response = await fetch(`${API_URL}/auth/password-reset/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    })
-    return handleResponse(response)
-  },
-
-  confirmPasswordReset: async (uid, token, newPassword) => {
-    const response = await fetch(`${API_URL}/auth/password-reset/confirm/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid, token, new_password: newPassword }),
-    })
-    return handleResponse(response)
-  },
-}
-
-// Hostel services
+// Hostels API
 export const hostelService = {
-  getHostels: async (page = 1) => {
-    const response = await fetch(`${API_URL}/hostels/?page=${page}`)
-    return handleResponse(response)
-  },
-
-  getHostelDetails: async (id) => {
-    const response = await fetch(`${API_URL}/hostels/${id}/`)
-    return handleResponse(response)
-  },
-
-  searchHostels: async (params) => {
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`${API_URL}/hostels/search/?${queryString}`)
-    return handleResponse(response)
-  },
-
-  createHostel: async (hostelData) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/hostels/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(hostelData),
-    })
-    return handleResponse(response)
-  },
-
-  updateHostel: async (id, hostelData) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/hostels/${id}/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(hostelData),
-    })
-    return handleResponse(response)
-  },
-
-  deleteHostel: async (id) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/hostels/${id}/`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      const errorMessage = errorData.detail || errorData.message || `Error: ${response.status}`
-      throw new Error(errorMessage)
+  getAll: async () => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.hostelsApi.getAll();
+      } catch (error) {
+        return handleApiError(error);
+      }
     }
-
-    return true
+    
+    try {
+      const response = await fetch(`${API_URL}/hostels/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
-
-  uploadHostelImage: async (hostelId, imageFile) => {
-    const token = localStorage.getItem("token")
-    const formData = new FormData()
-    formData.append("image", imageFile)
-
-    const response = await fetch(`${API_URL}/hostels/${hostelId}/upload-image/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-      body: formData,
-    })
-    return handleResponse(response)
+  
+  getFeatured: async () => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.hostelsApi.getFeatured();
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/hostels/featured/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
-}
+  
+  getById: async (id) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.hostelsApi.getById(id);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/hostels/${id}/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+  
+  search: async (query, filters = {}) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.hostelsApi.search(query, filters);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      // Build query string from filters
+      const params = new URLSearchParams();
+      if (query) params.append('q', query);
+      
+      if (filters.priceRange) {
+        params.append('min_price', filters.priceRange[0]);
+        params.append('max_price', filters.priceRange[1]);
+      }
+      
+      if (filters.university) params.append('university', filters.university);
+      if (filters.rating) params.append('min_rating', filters.rating);
+      
+      if (filters.amenities && filters.amenities.length) {
+        filters.amenities.forEach(amenity => params.append('amenities', amenity));
+      }
+      
+      if (filters.roomTypes && filters.roomTypes.length) {
+        filters.roomTypes.forEach(roomType => params.append('room_types', roomType));
+      }
+      
+      const response = await fetch(`${API_URL}/hostels/search/?${params.toString()}`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};
 
-// Booking services
+// Universities API
+export const universityService = {
+  getAll: async () => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.universitiesApi.getAll();
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/universities/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+  
+  getById: async (id) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.universitiesApi.getById(id);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/universities/${id}/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};
+
+// Rooms API
+export const roomService = {
+  getByHostelId: async (hostelId) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.roomsApi.getByHostelId(hostelId);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/hostels/${hostelId}/rooms/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+  
+  checkAvailability: async (roomId, checkInDate, checkOutDate) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.roomsApi.checkAvailability(roomId, checkInDate, checkOutDate);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const params = new URLSearchParams({
+        check_in: checkInDate,
+        check_out: checkOutDate
+      });
+      
+      const response = await fetch(`${API_URL}/rooms/${roomId}/availability/?${params.toString()}`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};
+
+// Bookings API
 export const bookingService = {
-  createBooking: async (bookingData) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/bookings/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(bookingData),
-    })
-    return handleResponse(response)
-  },
-
-  getUserBookings: async () => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/bookings/user/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-
-  getBookingDetails: async (id) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/bookings/${id}/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-
-  cancelBooking: async (id) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/bookings/${id}/cancel/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-}
-
-// Review services
-export const reviewService = {
-  getHostelReviews: async (hostelId) => {
-    const response = await fetch(`${API_URL}/hostels/${hostelId}/reviews/`)
-    return handleResponse(response)
-  },
-
-  createReview: async (hostelId, reviewData) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/hostels/${hostelId}/reviews/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(reviewData),
-    })
-    return handleResponse(response)
-  },
-
-  likeReview: async (reviewId) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/reviews/${reviewId}/like/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-
-  reportReview: async (reviewId, reason) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/reviews/${reviewId}/report/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify({ reason }),
-    })
-    return handleResponse(response)
-  },
-}
-
-// Favorites services
-export const favoritesService = {
-  getFavorites: async () => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/favorites/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
-  },
-
-  addFavorite: async (hostelId) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/favorites/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify({ hostel_id: hostelId }),
-    })
-    return handleResponse(response)
-  },
-
-  removeFavorite: async (favoriteId) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/favorites/${favoriteId}/`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-
-    if (response.status === 204) {
-      return true
+  getByUserId: async (userId, token) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.bookingsApi.getByUserId(userId);
+      } catch (error) {
+        return handleApiError(error);
+      }
     }
-
-    return handleResponse(response)
+    
+    try {
+      const response = await fetch(`${API_URL}/users/${userId}/bookings/`, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+      
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
-}
+  
+  create: async (bookingData, token) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.bookingsApi.create(bookingData);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/bookings/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify(bookingData),
+      });
+      
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};
 
-// User profile services
-export const profileService = {
-  getUserProfile: async () => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/users/profile/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-    return handleResponse(response)
+// Reviews API
+export const reviewService = {
+  getByHostelId: async (hostelId) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.reviewsApi.getByHostelId(hostelId);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/hostels/${hostelId}/reviews/`);
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
-
-  updateUserProfile: async (profileData) => {
-    const token = localStorage.getItem("token")
-    const response = await fetch(`${API_URL}/users/profile/update/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify(profileData),
-    })
-    return handleResponse(response)
-  },
-
-  uploadProfilePicture: async (imageFile) => {
-    const token = localStorage.getItem("token")
-    const formData = new FormData()
-    formData.append("profile_picture", imageFile)
-
-    const response = await fetch(`${API_URL}/users/profile/upload-picture/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-      body: formData,
-    })
-    return handleResponse(response)
-  },
-}
-
-// Utility services
-export const utilityService = {
-  getUniversities: async () => {
-    const response = await fetch(`${API_URL}/universities/`)
-    return handleResponse(response)
-  },
-
-  getLocations: async () => {
-    const response = await fetch(`${API_URL}/locations/`)
-    return handleResponse(response)
-  },
-}
+  
+  create: async (reviewData, token) => {
+    if (USE_MOCK_API) {
+      try {
+        return await mockApi.reviewsApi.create(reviewData);
+      } catch (error) {
+        return handleApiError(error);
+      }
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/reviews/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify(reviewData),
+      });
+      
+      return await handleResponse(response);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+};

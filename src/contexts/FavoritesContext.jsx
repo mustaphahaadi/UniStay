@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { API_URL } from "../config";
 import { useAuth } from "./AuthContext";
 import { useNotification } from "./NotificationContext";
+import { hostels } from "../data"; // Import mock data for development
 
 // Create context
 const FavoritesContext = createContext();
@@ -18,69 +19,51 @@ export function useFavorites() {
 // Provider component
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set to false for development
   const { isAuthenticated, user } = useAuth();
   const { error: showError, success: showSuccess } = useNotification();
 
-  // Fetch favorites when user authentication changes
+  // For development, initialize with some mock favorites
   useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!isAuthenticated || !user) {
-        setFavorites([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_URL}/favorites/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch favorites");
-        }
-
-        const data = await response.json();
-        setFavorites(data);
-      } catch (err) {
-        console.error("Error fetching favorites:", err);
-        showError("Failed to load favorites");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFavorites();
-  }, [isAuthenticated, user, showError]);
+    // Mock favorites data
+    const mockFavorites = [
+      {
+        id: 1,
+        user_id: 1,
+        hostel: hostels[0],
+        created_at: "2023-05-05T10:15:00Z",
+      },
+      {
+        id: 2,
+        user_id: 1,
+        hostel: hostels[2],
+        created_at: "2023-05-10T14:30:00Z",
+      },
+    ];
+    
+    setFavorites(mockFavorites);
+    setLoading(false);
+  }, []);
 
   // Add a hostel to favorites
   const addFavorite = async (hostelId) => {
-    if (!isAuthenticated) {
-      showError("Please log in to add favorites");
-      return false;
-    }
-
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/favorites/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        body: JSON.stringify({ hostel_id: hostelId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add favorite");
+      // Find the hostel in our mock data
+      const hostel = hostels.find(h => h.id === hostelId);
+      
+      if (!hostel) {
+        throw new Error("Hostel not found");
       }
-
-      const newFavorite = await response.json();
-      setFavorites((prev) => [...prev, newFavorite]);
+      
+      // Create a new favorite
+      const newFavorite = {
+        id: favorites.length + 1,
+        user_id: user.id,
+        hostel: hostel,
+        created_at: new Date().toISOString(),
+      };
+      
+      setFavorites(prev => [...prev, newFavorite]);
       showSuccess("Added to favorites");
       return true;
     } catch (err) {
@@ -92,25 +75,8 @@ export const FavoritesProvider = ({ children }) => {
 
   // Remove a hostel from favorites
   const removeFavorite = async (hostelId) => {
-    if (!isAuthenticated) {
-      showError("Please log in to manage favorites");
-      return false;
-    }
-
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/favorites/${hostelId}/`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to remove favorite");
-      }
-
-      setFavorites((prev) => prev.filter((fav) => fav.hostel.id !== hostelId));
+      setFavorites(prev => prev.filter(fav => fav.hostel.id !== hostelId));
       showSuccess("Removed from favorites");
       return true;
     } catch (err) {
@@ -122,7 +88,7 @@ export const FavoritesProvider = ({ children }) => {
 
   // Check if a hostel is in favorites
   const isFavorite = (hostelId) => {
-    return favorites.some((fav) => fav.hostel.id === hostelId);
+    return favorites.some(fav => fav.hostel.id === hostelId);
   };
 
   // Toggle favorite status

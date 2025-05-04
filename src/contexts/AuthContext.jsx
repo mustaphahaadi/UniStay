@@ -9,90 +9,57 @@ const AuthContext = createContext()
 export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // For development, set a default user and authentication state
+  const defaultUser = {
+    id: 1,
+    email: "user@example.com",
+    firstName: "John",
+    lastName: "Doe",
+    role: "user",
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+  };
+
+  const [user, setUser] = useState(defaultUser)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userRole, setUserRole] = useState(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Always authenticated for development
+  const [userRole, setUserRole] = useState("user") // Default role
 
+  // For development, we'll skip the token validation
   useEffect(() => {
-    // Check if user is logged in on mount
-    const checkLoggedIn = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const userDataString = localStorage.getItem("userData")
-        
-        if (token && userDataString) {
-          // First try to use cached user data for faster loading
-          try {
-            const userData = JSON.parse(userDataString)
-            setUser(userData)
-            setUserRole(userData.role)
-            setIsAuthenticated(true)
-          } catch (err) {
-            console.error("Error parsing user data:", err)
-          }
-          
-          // Then verify with the server
-          const response = await fetch(`${API_URL}/auth/user/`, {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          })
-
-          if (response.ok) {
-            const userData = await response.json()
-            setUser(userData)
-            setUserRole(userData.role)
-            setIsAuthenticated(true)
-            // Update stored user data
-            storeUserData(userData)
-          } else {
-            // Token is invalid or expired
-            clearAuthData()
-            setUser(null)
-            setUserRole(null)
-            setIsAuthenticated(false)
-          }
-        }
-      } catch (err) {
-        console.error("Authentication check failed:", err)
-        setIsAuthenticated(false)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkLoggedIn()
+    // Store the default user data
+    storeUserData(defaultUser);
+    
+    // Set a mock token
+    localStorage.setItem("token", "mock-token-1-development");
+    
+    // Set loading to false immediately
+    setLoading(false);
   }, [])
 
   const login = async (email, password) => {
     setError(null)
     try {
-      const response = await fetch(`${API_URL}/auth/login/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Login failed")
-      }
-
+      // For development, just return success without actual API call
+      const mockUser = {
+        id: 1,
+        email: email,
+        firstName: "John",
+        lastName: "Doe",
+        role: email.includes("manager") ? "manager" : email.includes("admin") ? "admin" : "user",
+        avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+      };
+      
       // Store authentication data
-      localStorage.setItem("token", data.token)
-      storeUserData(data.user)
+      localStorage.setItem("token", `mock-token-1-${Date.now()}`);
+      storeUserData(mockUser);
       
       // Update state
-      setUser(data.user)
-      setUserRole(data.user.role)
-      setIsAuthenticated(true)
+      setUser(mockUser);
+      setUserRole(mockUser.role);
+      setIsAuthenticated(true);
       
-      return data.user
+      return mockUser;
     } catch (err) {
       setError(err.message)
       throw err
@@ -102,22 +69,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setError(null)
     try {
-      const response = await fetch(`${API_URL}/auth/register/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        const errorMessage = Object.values(data).flat().join(", ")
-        throw new Error(errorMessage || "Registration failed")
-      }
-
-      return data
+      // For development, just return success without actual API call
+      return { success: true, message: "Registration successful" };
     } catch (err) {
       setError(err.message)
       throw err
@@ -126,17 +79,33 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     clearAuthData()
-    setUser(null)
-    setUserRole(null)
-    setIsAuthenticated(false)
+    
+    // For development, immediately set back to default user
+    setUser(defaultUser)
+    setUserRole("user")
+    setIsAuthenticated(true)
+    
+    // Store the default user data again
+    storeUserData(defaultUser);
+    localStorage.setItem("token", "mock-token-1-development");
   }
 
   const isManager = () => {
-    return userRole === "manager" || userRole === "admin"
+    return user && (user.role === "manager" || user.role === "admin")
   }
 
   const isAdmin = () => {
-    return userRole === "admin"
+    return user && user.role === "admin"
+  }
+
+  // For development, provide a way to switch roles
+  const switchRole = (role) => {
+    if (["user", "manager", "admin"].includes(role)) {
+      const updatedUser = { ...user, role };
+      setUser(updatedUser);
+      setUserRole(role);
+      storeUserData(updatedUser);
+    }
   }
 
   const value = {
@@ -150,6 +119,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     isManager,
     isAdmin,
+    switchRole, // Development helper
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

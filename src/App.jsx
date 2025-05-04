@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotificationSystem from './components/NotificationSystem';
+import DevTools from './components/DevTools';
 
 // Routes
 import routes from './routes.jsx';
@@ -66,6 +67,7 @@ function App() {
                           </Routes>
                         </main>
                         <Footer />
+                        <DevTools /> {/* Development tools */}
                       </div>
                     </Router>
                   </CommunityProvider>

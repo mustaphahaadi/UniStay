@@ -22,10 +22,9 @@ import ForumTopics from './pages/ForumTopics';
 import TopicPosts from './pages/TopicPosts';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import Help from './pages/Help';
-import AuthGuard from './components/AuthGuard';
 import { ROLES } from './config';
 
-// Routes configuration
+// Routes configuration - no protection for development
 const routes = [
   {
     path: '/',
@@ -57,59 +56,31 @@ const routes = [
   },
   {
     path: '/add-hostel',
-    element: (
-      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
-        <AddHostel />
-      </AuthGuard>
-    ),
+    element: <AddHostel />,
   },
   {
     path: '/edit-hostel/:id',
-    element: (
-      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
-        <EditHostel />
-      </AuthGuard>
-    ),
+    element: <EditHostel />,
   },
   {
     path: '/dashboard',
-    element: (
-      <AuthGuard>
-        <UserDashboard />
-      </AuthGuard>
-    ),
+    element: <UserDashboard />,
   },
   {
     path: '/manager-dashboard',
-    element: (
-      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
-        <ManagerDashboard />
-      </AuthGuard>
-    ),
+    element: <ManagerDashboard />,
   },
   {
     path: '/analytics',
-    element: (
-      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
-        <ManagerAnalytics />
-      </AuthGuard>
-    ),
+    element: <ManagerAnalytics />,
   },
   {
     path: '/bookings',
-    element: (
-      <AuthGuard>
-        <Bookings />
-      </AuthGuard>
-    ),
+    element: <Bookings />,
   },
   {
     path: '/favorites',
-    element: (
-      <AuthGuard>
-        <Favorites />
-      </AuthGuard>
-    ),
+    element: <Favorites />,
   },
   {
     path: '/search',
@@ -117,27 +88,15 @@ const routes = [
   },
   {
     path: '/settings',
-    element: (
-      <AuthGuard>
-        <Settings />
-      </AuthGuard>
-    ),
+    element: <Settings />,
   },
   {
     path: '/profile',
-    element: (
-      <AuthGuard>
-        <UserProfile />
-      </AuthGuard>
-    ),
+    element: <UserProfile />,
   },
   {
     path: '/messages',
-    element: (
-      <AuthGuard>
-        <Messages />
-      </AuthGuard>
-    ),
+    element: <Messages />,
   },
   {
     path: '/community',
@@ -153,11 +112,7 @@ const routes = [
   },
   {
     path: '/maintenance',
-    element: (
-      <AuthGuard>
-        <MaintenanceRequests />
-      </AuthGuard>
-    ),
+    element: <MaintenanceRequests />,
   },
   {
     path: '/help',

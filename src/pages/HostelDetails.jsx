@@ -1,601 +1,502 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
-import { API_URL } from "../config"
-import { useAuth } from "../contexts/AuthContext"
-import { useFavorites } from "../contexts/FavoritesContext"
-import { toast } from "react-toastify"
-import ReviewSystem from "../components/ReviewSystem"
-import MapView from "../components/MapView"
-import {
-  MapPin,
-  School,
-  Users,
-  Wifi,
-  Tv,
-  Fan,
-  ShowerHead,
-  CookingPotIcon as Kitchen,
-  BookOpen,
-  Shield,
-  Droplet,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  Share,
-  Edit,
-  Star,
-} from "lucide-react"
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { 
+  MapPin, Star, Calendar, Users, Wifi, Coffee, DollarSign, 
+  Clock, Check, X, Share2, Heart, Camera, MessageCircle
+} from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useFavorites } from "../contexts/FavoritesContext";
+import { useNotification } from "../contexts/NotificationContext";
+import { hostelService } from "../services/api";
+import BookingCalendar from "../components/BookingCalendar";
+import ContactHostButton from "../components/ContactHostButton";
+import ReviewSystem from "../components/ReviewSystem";
+import ReviewForm from "../components/ReviewForm";
+import LocalServicesMap from "../components/LocalServicesMap";
+import VirtualTour from "../components/VirtualTour";
 
 const HostelDetails = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { user, isManager } = useAuth()
-  const { isFavorite, addFavorite, removeFavorite } = useFavorites()
-  const [hostel, setHostel] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [selectedRoom, setSelectedRoom] = useState(null)
-  const [bookingDates, setBookingDates] = useState({
-    start_date: "",
-    end_date: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState("details")
-  const [isProcessingFavorite, setIsProcessingFavorite] = useState(false)
-
+  const { id } = useParams();
+  const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { success: showSuccess, error: showError } = useNotification();
+  
+  const [hostel, setHostel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showVirtualTour, setShowVirtualTour] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  
+  // Fetch hostel details
   useEffect(() => {
     const fetchHostelDetails = async () => {
+      setLoading(true);
+      setError(null);
+      
       try {
-        const response = await fetch(`${API_URL}/hostels/${id}/`)
-
-        if (!response.ok) {
-          throw new Error("Hostel not found")
-        }
-
-        const data = await response.json()
-        setHostel(data)
-
-        // Set the first room as selected by default if rooms exist
-        if (data.rooms && data.rooms.length > 0) {
-          setSelectedRoom(data.rooms[0])
-        }
-      } catch (error) {
-        console.error("Error fetching hostel details:", error)
-        toast.error("Failed to load hostel details")
+        const data = await hostelService.getById(id);
+        setHostel(data);
+        
+        // In a real app, you would fetch reviews separately
+        // For now, we'll simulate some reviews
+        setReviews([
+          {
+            id: 1,
+            user_id: 1,
+            hostel_id: data.id,
+            rating: 4,
+            comment: "Great location and facilities. Very clean and modern.",
+            created_at: "2023-04-10T15:20:00Z",
+            user: {
+              firstName: "John",
+              lastName: "Doe",
+              avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+            }
+          },
+          {
+            id: 2,
+            user_id: 3,
+            hostel_id: data.id,
+            rating: 5,
+            comment: "Excellent staff and amenities. Would definitely stay again!",
+            created_at: "2023-04-15T09:10:00Z",
+            user: {
+              firstName: "Alex",
+              lastName: "Johnson",
+              avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+            }
+          },
+        ]);
+      } catch (err) {
+        console.error("Error fetching hostel details:", err);
+        setError(t("hostelDetails.errors.fetch"));
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
+    };
+
+    fetchHostelDetails();
+  }, [id, t]);
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (!isAuthenticated) {
+      showError(t("hostelDetails.errors.loginRequired"));
+      return;
     }
-
-    fetchHostelDetails()
-  }, [id])
-
-  const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? hostel.images.length - 1 : prev - 1))
-  }
-
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev === hostel.images.length - 1 ? 0 : prev + 1))
-  }
-
-  const handleRoomSelect = (room) => {
-    setSelectedRoom(room)
-  }
-
-  const handleBookingDateChange = (e) => {
-    const { name, value } = e.target
-    setBookingDates((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleBookNow = async () => {
-    if (!user) {
-      toast.info("Please login to book a hostel")
-      navigate("/login", { state: { from: `/hostels/${id}` } })
-      return
-    }
-
-    if (!selectedRoom) {
-      toast.error("Please select a room")
-      return
-    }
-
-    if (!bookingDates.start_date || !bookingDates.end_date) {
-      toast.error("Please select booking dates")
-      return
-    }
-
-    setIsSubmitting(true)
+    
     try {
-      const response = await fetch(`${API_URL}/bookings/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          hostel: hostel.id,
-          room: selectedRoom.id,
-          start_date: bookingDates.start_date,
-          end_date: bookingDates.end_date,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Booking failed")
+      const success = await toggleFavorite(hostel.id);
+      if (success) {
+        showSuccess(
+          isFavorite(hostel.id) 
+            ? t("hostelDetails.removedFromFavorites") 
+            : t("hostelDetails.addedToFavorites")
+        );
       }
-
-      toast.success("Booking successful!")
-      navigate("/dashboard/bookings")
-    } catch (error) {
-      console.error("Booking error:", error)
-      toast.error(error.message || "Failed to book hostel")
-    } finally {
-      setIsSubmitting(false)
+    } catch (err) {
+      showError(t("hostelDetails.errors.favoriteToggle"));
     }
-  }
+  };
 
-  const handleToggleFavorite = async () => {
-    if (!user) {
-      navigate("/login", { state: { from: `/hostels/${id}` } })
-      return
-    }
-
-    if (isProcessingFavorite) return
-
-    setIsProcessingFavorite(true)
-    try {
-      if (isFavorite(hostel.id)) {
-        const success = await removeFavorite(hostel.id)
-        if (success) {
-          toast.success("Removed from favorites")
-        }
-      } else {
-        const success = await addFavorite(hostel.id)
-        if (success) {
-          toast.success("Added to favorites")
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error)
-    } finally {
-      setIsProcessingFavorite(false)
-    }
-  }
-
-  const handleShareHostel = () => {
+  // Handle share
+  const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: hostel.name,
-        text: `Check out this hostel: ${hostel.name}`,
+        text: hostel.description,
         url: window.location.href,
       })
+        .then(() => console.log("Shared successfully"))
+        .catch((error) => console.log("Error sharing:", error));
     } else {
       // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard.writeText(window.location.href)
-      toast.success("Link copied to clipboard")
+      navigator.clipboard.writeText(window.location.href);
+      showSuccess(t("hostelDetails.linkCopied"));
     }
-  }
+  };
 
-  // Function to render amenity icons
-  const renderAmenityIcon = (amenity) => {
-    switch (amenity.toLowerCase()) {
-      case "wifi":
-        return <Wifi className="h-5 w-5" />
-      case "tv":
-        return <Tv className="h-5 w-5" />
-      case "fan":
-        return <Fan className="h-5 w-5" />
-      case "bathroom":
-        return <ShowerHead className="h-5 w-5" />
-      case "kitchen":
-        return <Kitchen className="h-5 w-5" />
-      case "study room":
-        return <BookOpen className="h-5 w-5" />
-      case "security":
-        return <Shield className="h-5 w-5" />
-      case "water":
-        return <Droplet className="h-5 w-5" />
-      case "electricity":
-        return <Zap className="h-5 w-5" />
-      default:
-        return null
-    }
-  }
+  // Handle new review submission
+  const handleReviewSubmitted = (newReview) => {
+    setReviews(prev => [newReview, ...prev]);
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
-      </div>
-    )
-  }
-
-  if (!hostel) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Hostel Not Found</h2>
-          <p className="text-gray-600 mb-6">The hostel you're looking for doesn't exist or has been removed.</p>
-          <Link
-            to="/hostels"
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-          >
-            Browse All Hostels
-          </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
         </div>
       </div>
-    )
+    );
   }
 
-  const isFav = isFavorite(hostel.id)
+  if (error || !hostel) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-500 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700 dark:text-red-300">
+                {error || t("hostelDetails.errors.notFound")}
+              </p>
+              <div className="mt-4">
+                <Link
+                  to="/hostels"
+                  className="text-sm font-medium text-red-700 dark:text-red-300 hover:text-red-600 dark:hover:text-red-200"
+                >
+                  {t("hostelDetails.backToHostels")} &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare virtual tour images
+  const tourImages = hostel.images ? hostel.images.map((url, index) => ({
+    url,
+    caption: `${hostel.name} - Image ${index + 1}`
+  })) : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <Link to="/hostels" className="flex items-center text-teal-600 hover:text-teal-700">
-          <ChevronLeft className="h-5 w-5 mr-1" />
-          Back to Hostels
-        </Link>
+      {/* Breadcrumbs */}
+      <nav className="flex mb-4" aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-2">
+          <li>
+            <Link to="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+              {t("hostelDetails.breadcrumbs.home")}
+            </Link>
+          </li>
+          <li>
+            <span className="text-gray-500 dark:text-gray-400 mx-2">/</span>
+            <Link to="/hostels" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+              {t("hostelDetails.breadcrumbs.hostels")}
+            </Link>
+          </li>
+          <li>
+            <span className="text-gray-500 dark:text-gray-400 mx-2">/</span>
+            <span className="text-gray-900 dark:text-white">{hostel.name}</span>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Hostel header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {hostel.name}
+          </h1>
+          <div className="flex items-start text-gray-600 dark:text-gray-300 mb-2">
+            <MapPin className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0 text-teal-600 dark:text-teal-400" />
+            <p>{hostel.address}</p>
+          </div>
+          <div className="flex items-center">
+            <div className="flex items-center mr-4">
+              <Star className="h-5 w-5 text-yellow-400 mr-1" />
+              <span className="font-medium">{hostel.rating}</span>
+              <span className="text-gray-500 dark:text-gray-400 ml-1">
+                ({reviews.length} {t("hostelDetails.reviews")})
+              </span>
+            </div>
+            <div className="text-gray-500 dark:text-gray-400">
+              <span className="text-teal-600 dark:text-teal-400 font-medium">
+                {hostel.available_rooms}
+              </span> / {hostel.total_rooms} {t("hostelDetails.roomsAvailable")}
+            </div>
+          </div>
+        </div>
+        <div className="flex mt-4 md:mt-0">
+          <button
+            onClick={handleShare}
+            className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 mr-2"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            {t("hostelDetails.share")}
+          </button>
+          <button
+            onClick={handleFavoriteToggle}
+            className={`flex items-center px-3 py-2 border rounded-md shadow-sm text-sm font-medium ${
+              isFavorite(hostel.id)
+                ? "border-red-300 text-red-700 dark:border-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900 hover:bg-red-100 dark:hover:bg-red-800"
+                : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Heart className={`h-4 w-4 mr-2 ${isFavorite(hostel.id) ? "fill-red-500" : ""}`} />
+            {isFavorite(hostel.id) ? t("hostelDetails.saved") : t("hostelDetails.save")}
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Image Gallery */}
-        <div className="relative h-96">
+      {/* Image gallery */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="md:col-span-2 relative">
           {hostel.images && hostel.images.length > 0 ? (
-            <>
-              <img
-                src={hostel.images[currentImageIndex] || "/placeholder.svg"}
-                alt={`${hostel.name} - Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover"
-              />
-
-              {hostel.images.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </button>
-                  <button
-                    onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </button>
-
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                    {hostel.images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`h-2 w-2 rounded-full ${
-                          currentImageIndex === index ? "bg-white" : "bg-white bg-opacity-50"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              <div className="absolute top-4 right-4 flex space-x-2">
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`p-2 rounded-full shadow-md ${
-                    isFav ? "bg-red-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <Heart className={`h-5 w-5 ${isFav ? "fill-current" : ""}`} />
-                </button>
-                <button onClick={handleShareHostel} className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                  <Share className="h-5 w-5 text-gray-700" />
-                </button>
-                {user && isManager() && hostel.owner_id === user.id && (
-                  <Link
-                    to={`/manager/edit-hostel/${hostel.id}`}
-                    className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
-                  >
-                    <Edit className="h-5 w-5 text-gray-700" />
-                  </Link>
-                )}
-              </div>
-
-              <div className="absolute top-4 left-4 bg-teal-600 text-white px-3 py-1 rounded-md text-sm font-medium">
-                {hostel.gender_type}
-              </div>
-
-              {hostel.rating && (
-                <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md text-sm font-medium flex items-center">
-                  <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
-                  {hostel.rating}
-                </div>
-              )}
-            </>
+            <img
+              src={hostel.images[activeImage]}
+              alt={hostel.name}
+              className="w-full h-96 object-cover rounded-lg"
+            />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <p className="text-gray-500">No images available</p>
+            <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500 dark:text-gray-400">
+                {t("hostelDetails.noImage")}
+              </span>
             </div>
           )}
+          <button
+            onClick={() => setShowVirtualTour(true)}
+            className="absolute bottom-4 right-4 flex items-center px-3 py-2 bg-black bg-opacity-70 hover:bg-opacity-80 text-white rounded-md"
+          >
+            <Camera className="h-4 w-4 mr-2" />
+            {t("hostelDetails.virtualTour")}
+          </button>
         </div>
-
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{hostel.name}</h1>
-
-              <div className="flex items-start text-gray-600 mb-2">
-                <MapPin className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <p>{hostel.location}</p>
-              </div>
-
-              <div className="flex items-start text-gray-600 mb-2">
-                <School className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <p>
-                  {hostel.university_name} ({hostel.distance_to_university} km)
-                </p>
-              </div>
-
-              <div className="flex items-start text-gray-600">
-                <Users className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <p>{hostel.beds_per_room} beds per room</p>
-              </div>
-            </div>
-
-            <div className="mt-4 md:mt-0">
-              <div className="text-3xl font-bold text-teal-600 mb-1">₵{hostel.price}</div>
-              <p className="text-gray-500 text-sm mb-4">per semester</p>
-
-              {user && isManager() && hostel.owner_id === user.id ? (
-                <Link
-                  to={`/manager/edit-hostel/${hostel.id}`}
-                  className="block w-full px-4 py-2 bg-teal-600 text-white text-center rounded-md hover:bg-teal-700 transition-colors"
-                >
-                  Edit Hostel
-                </Link>
-              ) : (
-                <button
-                  onClick={() => document.getElementById("booking-section").scrollIntoView({ behavior: "smooth" })}
-                  className="block w-full px-4 py-2 bg-teal-600 text-white text-center rounded-md hover:bg-teal-700 transition-colors"
-                >
-                  Book Now
-                </button>
+        <div className="grid grid-cols-2 gap-4">
+          {hostel.images && hostel.images.slice(1, 5).map((image, index) => (
+            <div 
+              key={index} 
+              className="relative cursor-pointer"
+              onClick={() => setActiveImage(index + 1)}
+            >
+              <img
+                src={image}
+                alt={`${hostel.name} ${index + 2}`}
+                className="w-full h-44 object-cover rounded-lg"
+              />
+              {index === 3 && hostel.images.length > 5 && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                  <span className="text-white font-medium">
+                    +{hostel.images.length - 5} {t("hostelDetails.more")}
+                  </span>
+                </div>
               )}
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left column - Hostel details */}
+        <div className="lg:col-span-2">
+          {/* Description */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+              {t("hostelDetails.about")}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              {hostel.description}
+            </p>
+            
+            {/* Amenities */}
+            <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+              {t("hostelDetails.amenities")}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {hostel.amenities && hostel.amenities.map((amenity) => (
+                <div key={amenity} className="flex items-center">
+                  <Check className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-2" />
+                  <span className="text-gray-600 dark:text-gray-300">{amenity}</span>
+                </div>
+              ))}
+            </div>
+            
+            {/* Room types */}
+            <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+              {t("hostelDetails.roomTypes")}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {hostel.room_types && hostel.room_types.map((roomType) => (
+                <div key={roomType} className="flex items-center">
+                  <Users className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-2" />
+                  <span className="text-gray-600 dark:text-gray-300">{roomType}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Tabs */}
-          <div className="border-b border-gray-200 mb-6">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab("details")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "details"
-                    ? "border-teal-600 text-teal-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Details
-              </button>
-              <button
-                onClick={() => setActiveTab("rooms")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "rooms"
-                    ? "border-teal-600 text-teal-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Rooms & Availability
-              </button>
-              <button
-                onClick={() => setActiveTab("location")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "location"
-                    ? "border-teal-600 text-teal-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Location
-              </button>
-              <button
-                onClick={() => setActiveTab("reviews")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "reviews"
-                    ? "border-teal-600 text-teal-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Reviews
-              </button>
-            </nav>
+          {/* Location */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+              {t("hostelDetails.location")}
+            </h2>
+            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4">
+              <LocalServicesMap
+                location={hostel.location}
+                name={hostel.name}
+              />
+            </div>
+            <div className="text-gray-600 dark:text-gray-300">
+              <p className="mb-2">
+                <strong>{t("hostelDetails.address")}:</strong> {hostel.address}
+              </p>
+              <p>
+                <strong>{t("hostelDetails.nearbyServices")}:</strong> {t("hostelDetails.servicesDescription")}
+              </p>
+            </div>
           </div>
 
-          {/* Tab content */}
-          <div>
-            {activeTab === "details" && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Description</h2>
-                <p className="text-gray-700 mb-6">{hostel.description}</p>
-
-                <h2 className="text-xl font-semibold mb-4">Amenities</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-                  {hostel.amenities &&
-                    hostel.amenities.map((amenity, index) => (
-                      <div key={index} className="flex items-center">
-                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-teal-100 text-teal-600 mr-3">
-                          {renderAmenityIcon(amenity)}
-                        </div>
-                        <span>{amenity}</span>
-                      </div>
-                    ))}
+          {/* Reviews */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+              {t("hostelDetails.reviews")} ({reviews.length})
+            </h2>
+            
+            {/* Review summary */}
+            <div className="flex items-center mb-6">
+              <div className="flex items-center mr-4">
+                <Star className="h-8 w-8 text-yellow-400 mr-2" />
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {hostel.rating}
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 ml-1">/ 5</span>
+              </div>
+              <div className="flex-grow">
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                  <div
+                    className="h-2 bg-yellow-400 rounded-full"
+                    style={{ width: `${(hostel.rating / 5) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {t("hostelDetails.basedOn")} {reviews.length} {t("hostelDetails.reviews")}
                 </div>
               </div>
-            )}
-
-            {activeTab === "rooms" && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Rooms & Availability</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                  {hostel.rooms &&
-                    hostel.rooms.map((room) => (
-                      <div
-                        key={room.id}
-                        className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                          selectedRoom && selectedRoom.id === room.id
-                            ? "border-teal-600 bg-teal-50"
-                            : "border-gray-200 hover:border-teal-600"
-                        }`}
-                        onClick={() => handleRoomSelect(room)}
-                      >
-                        <h3 className="font-semibold mb-2">Room {room.number}</h3>
-                        <p className="text-gray-600 mb-1">Capacity: {room.capacity} persons</p>
-                        <p className="text-gray-600 mb-1">Available: {room.available_beds} beds</p>
-                        <p className="text-gray-600">Type: {room.room_type}</p>
-                        {room.available_beds === 0 && (
-                          <div className="mt-2 text-red-600 text-sm font-medium">Fully Booked</div>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "location" && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Location</h2>
-                <div className="bg-gray-100 h-64 rounded-lg mb-6">
-                  {hostel.latitude && hostel.longitude ? (
-                    <MapView hostels={[hostel]} />
-                  ) : (
-                    <div className="h-full flex items-center justify-center">
-                      <p className="text-gray-500">Map location not available</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mb-6">
-                  <h3 className="font-semibold mb-2">Nearby Amenities</h3>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <span className="inline-block bg-teal-100 text-teal-600 p-1 rounded-full mr-2">
-                        <School className="h-4 w-4" />
-                      </span>
-                      <span>
-                        {hostel.university_name} - {hostel.distance_to_university} km
-                      </span>
-                    </li>
-                    {/* Add more nearby amenities here */}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div>
-                <ReviewSystem hostelId={hostel.id} />
-              </div>
-            )}
+            </div>
+            
+            {/* Review form */}
+            <ReviewForm
+              hostelId={hostel.id}
+              onReviewSubmitted={handleReviewSubmitted}
+            />
+            
+            {/* Review list */}
+            <ReviewSystem reviews={reviews} />
           </div>
+        </div>
 
-          <div id="booking-section" className="border-t border-gray-200 pt-6 mt-6">
-            <h2 className="text-xl font-semibold mb-4">Book Your Stay</h2>
-
-            {!user ? (
-              <div className="bg-gray-50 p-6 rounded-lg text-center">
-                <p className="text-gray-700 mb-4">Please login to book this hostel</p>
-                <Link
-                  to={`/login?redirect=/hostels/${hostel.id}`}
-                  className="inline-block px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-                >
-                  Login to Continue
-                </Link>
+        {/* Right column - Booking and contact */}
+        <div>
+          {/* Price and booking */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ${hostel.price_per_night}
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 ml-1">
+                  / {t("hostelDetails.night")}
+                </span>
               </div>
-            ) : (
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Selected Room</label>
-                    <select
-                      value={selectedRoom ? selectedRoom.id : ""}
-                      onChange={(e) => {
-                        const roomId = e.target.value
-                        const room = hostel.rooms.find((r) => r.id.toString() === roomId)
-                        setSelectedRoom(room)
-                      }}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    >
-                      <option value="">Select a room</option>
-                      {hostel.rooms.map((room) => (
-                        <option key={room.id} value={room.id} disabled={room.available_beds === 0}>
-                          Room {room.number} - {room.available_beds} beds available
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                    <input
-                      type="date"
-                      name="start_date"
-                      value={bookingDates.start_date}
-                      onChange={handleBookingDateChange}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={bookingDates.end_date}
-                      min={bookingDates.start_date}
-                      onChange={handleBookingDateChange}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-lg font-semibold">Total: ₵{hostel.price}</p>
-                    <p className="text-sm text-gray-500">per semester</p>
-                  </div>
-
-                  <button
-                    onClick={handleBookNow}
-                    disabled={
-                      isSubmitting ||
-                      !selectedRoom ||
-                      !bookingDates.start_date ||
-                      !bookingDates.end_date ||
-                      selectedRoom.available_beds === 0
-                    }
-                    className={`px-6 py-2 rounded-md font-medium ${
-                      isSubmitting ||
-                      !selectedRoom ||
-                      !bookingDates.start_date ||
-                      !bookingDates.end_date ||
-                      (selectedRoom && selectedRoom.available_beds === 0)
-                        ? "bg-gray-300 cursor-not-allowed"
-                        : "bg-teal-600 text-white hover:bg-teal-700"
-                    } transition-colors`}
-                  >
-                    {isSubmitting ? "Processing..." : "Book Now"}
-                  </button>
-                </div>
+              <div className="flex items-center">
+                <Star className="h-5 w-5 text-yellow-400 mr-1" />
+                <span className="font-medium">{hostel.rating}</span>
               </div>
+            </div>
+            
+            <button
+              onClick={() => setShowBookingForm(!showBookingForm)}
+              className="w-full py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md mb-4"
+            >
+              {showBookingForm ? t("hostelDetails.hideBookingForm") : t("hostelDetails.checkAvailability")}
+            </button>
+            
+            {showBookingForm && (
+              <BookingCalendar
+                hostelId={hostel.id}
+                pricePerNight={hostel.price_per_night}
+              />
             )}
+            
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+                {t("hostelDetails.quickFacts")}
+              </h3>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <Clock className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-medium">{t("hostelDetails.checkIn")}:</span> 2:00 PM
+                    <br />
+                    <span className="font-medium">{t("hostelDetails.checkOut")}:</span> 11:00 AM
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-medium">{t("hostelDetails.cancellation")}:</span>
+                    <br />
+                    {t("hostelDetails.freeCancellation")}
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <Wifi className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-medium">{t("hostelDetails.wifi")}:</span>
+                    <br />
+                    {t("hostelDetails.freeWifi")}
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <Coffee className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-medium">{t("hostelDetails.breakfast")}:</span>
+                    <br />
+                    {hostel.amenities && hostel.amenities.includes("Breakfast")
+                      ? t("hostelDetails.breakfastIncluded")
+                      : t("hostelDetails.breakfastNotIncluded")}
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-medium">{t("hostelDetails.payment")}:</span>
+                    <br />
+                    {t("hostelDetails.paymentOptions")}
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Contact host */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4">
+              {t("hostelDetails.contactHost")}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {t("hostelDetails.questions")}
+            </p>
+            <ContactHostButton
+              hostelId={hostel.id}
+              hostelName={hostel.name}
+            />
           </div>
         </div>
       </div>
-    </div>
-  )
-}
 
-export default HostelDetails
+      {/* Virtual tour modal */}
+      {showVirtualTour && (
+        <VirtualTour
+          tourImages={tourImages}
+          onClose={() => setShowVirtualTour(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default HostelDetails;
