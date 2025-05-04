@@ -6,9 +6,10 @@ import './App.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
+import NotificationSystem from './components/NotificationSystem';
 
 // Routes
-import routes from './routes';
+import routes from './routes.jsx';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -52,6 +53,7 @@ function App() {
                     <Router>
                       <div className="app-container">
                         <Navbar />
+                        <NotificationSystem />
                         <main className="main-content">
                           <Routes>
                             {routes.map((route, index) => (

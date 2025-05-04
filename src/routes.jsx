@@ -1,7 +1,4 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
-
-// Pages
+import { Navigate, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,25 +22,8 @@ import ForumTopics from './pages/ForumTopics';
 import TopicPosts from './pages/TopicPosts';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import Help from './pages/Help';
-
-// Protected route wrapper
-const ProtectedRoute = ({ children, requiredRole = null }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
-};
+import AuthGuard from './components/AuthGuard';
+import { ROLES } from './config';
 
 // Routes configuration
 const routes = [
@@ -76,85 +56,132 @@ const routes = [
     element: <HostelDetails />,
   },
   {
+    path: '/add-hostel',
+    element: (
+      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+        <AddHostel />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/edit-hostel/:id',
+    element: (
+      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+        <EditHostel />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/dashboard',
+    element: (
+      <AuthGuard>
+        <UserDashboard />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/manager-dashboard',
+    element: (
+      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+        <ManagerDashboard />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/analytics',
+    element: (
+      <AuthGuard requiredRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+        <ManagerAnalytics />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/bookings',
+    element: (
+      <AuthGuard>
+        <Bookings />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/favorites',
+    element: (
+      <AuthGuard>
+        <Favorites />
+      </AuthGuard>
+    ),
+  },
+  {
     path: '/search',
     element: <Search />,
   },
   {
-    path: '/help',
-    element: <Help />,
-  },
-  
-  // Protected routes - User
-  {
-    path: '/dashboard',
-    element: <ProtectedRoute><UserDashboard /></ProtectedRoute>,
-  },
-  {
-    path: '/bookings',
-    element: <ProtectedRoute><Bookings /></ProtectedRoute>,
-  },
-  {
-    path: '/favorites',
-    element: <ProtectedRoute><Favorites /></ProtectedRoute>,
-  },
-  {
     path: '/settings',
-    element: <ProtectedRoute><Settings /></ProtectedRoute>,
+    element: (
+      <AuthGuard>
+        <Settings />
+      </AuthGuard>
+    ),
   },
   {
     path: '/profile',
-    element: <ProtectedRoute><UserProfile /></ProtectedRoute>,
+    element: (
+      <AuthGuard>
+        <UserProfile />
+      </AuthGuard>
+    ),
   },
   {
     path: '/messages',
-    element: <ProtectedRoute><Messages /></ProtectedRoute>,
+    element: (
+      <AuthGuard>
+        <Messages />
+      </AuthGuard>
+    ),
   },
-  {
-    path: '/maintenance',
-    element: <ProtectedRoute><MaintenanceRequests /></ProtectedRoute>,
-  },
-  
-  // Protected routes - Community
   {
     path: '/community',
     element: <Community />,
   },
   {
-    path: '/community/forums/:forumId',
+    path: '/forum/:category',
     element: <ForumTopics />,
   },
   {
-    path: '/community/topics/:topicId',
+    path: '/topic/:id',
     element: <TopicPosts />,
   },
-  
-  // Protected routes - Host/Manager
   {
-    path: '/manager',
-    element: <ProtectedRoute requiredRole="manager"><ManagerDashboard /></ProtectedRoute>,
-  },
-  {
-    path: '/manager/analytics',
-    element: <ProtectedRoute requiredRole="manager"><ManagerAnalytics /></ProtectedRoute>,
-  },
-  {
-    path: '/add-hostel',
-    element: <ProtectedRoute requiredRole="manager"><AddHostel /></ProtectedRoute>,
-  },
-  {
-    path: '/edit-hostel/:id',
-    element: <ProtectedRoute requiredRole="manager"><EditHostel /></ProtectedRoute>,
-  },
-  
-  // Fallback route
-  {
-    path: '*',
+    path: '/maintenance',
     element: (
-      <div className="not-found">
-        <h1>404 - Page Not Found</h1>
-        <p>The page you are looking for does not exist.</p>
+      <AuthGuard>
+        <MaintenanceRequests />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/help',
+    element: <Help />,
+  },
+  {
+    path: '/unauthorized',
+    element: (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Unauthorized Access</h1>
+          <p className="mb-6 text-gray-700 dark:text-gray-300">
+            You don't have permission to access this page.
+          </p>
+          <Link to="/dashboard" className="inline-block px-6 py-2 bg-teal-600 text-white rounded-md">
+            Go to Dashboard
+          </Link>
+        </div>
       </div>
     ),
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ];
 

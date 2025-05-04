@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
@@ -10,29 +10,56 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
-  const { error } = useNotification();
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  const { login, isAuthenticated } = useAuth();
+  const { error: showError, success: showSuccess } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the redirect path from location state or default to dashboard
   const from = location.state?.from || "/dashboard";
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
+
+  // Check for saved email
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!email || !password) {
-      error("Please enter both email and password");
+      showError("Please enter both email and password");
       return;
     }
 
     setIsSubmitting(true);
     
     try {
+      // Handle remember me
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+      
       await login(email, password);
+      showSuccess("Login successful! Welcome back.");
       navigate(from, { replace: true });
     } catch (err) {
-      error(err.message || "Login failed. Please check your credentials.");
+      showError(err.message || "Login failed. Please check your credentials.");
+      setPassword(""); // Clear password on error
     } finally {
       setIsSubmitting(false);
     }
@@ -115,6 +142,8 @@ const Login = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
