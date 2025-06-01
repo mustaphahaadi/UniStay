@@ -4,12 +4,14 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useCommunity } from "../contexts/CommunityContext"
 import { useAuth } from "../contexts/AuthContext"
-import { MessageSquare, Users, Clock, ChevronRight } from "lucide-react"
+import { MessageSquare, Users, Clock, ChevronRight, MessageCircle } from "lucide-react"
+import RealTimeChat from "../components/RealTimeChat"
 
 const Community = () => {
   const { forums, loading, error } = useCommunity()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("all")
+  const [showChat, setShowChat] = useState(false)
 
   if (loading) {
     return (
@@ -45,13 +47,22 @@ const Community = () => {
             <h1 className="text-2xl font-bold">Community Forums</h1>
 
             {user && (
-              <Link
-                to="/community/create-topic"
-                className="mt-4 md:mt-0 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors inline-flex items-center"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Start New Topic
-              </Link>
+              <div className="flex gap-2 mt-4 md:mt-0">
+                <button
+                  onClick={() => setShowChat(!showChat)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors inline-flex items-center"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Live Chat
+                </button>
+                <Link
+                  to="/community/create-topic"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors inline-flex items-center"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Start New Topic
+                </Link>
+              </div>
             )}
           </div>
 
@@ -133,6 +144,17 @@ const Community = () => {
           </div>
         </div>
       </div>
+
+      {/* Real-time Chat */}
+      {showChat && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <RealTimeChat
+            roomId="community-general"
+            roomName="Community General Chat"
+            onClose={() => setShowChat(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }

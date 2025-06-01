@@ -125,12 +125,20 @@ const HostelCard = ({ hostel }) => {
             <span className="text-2xl font-bold text-teal-600">₵{hostel.price}</span>
             <span className="text-gray-500 text-sm">/semester</span>
           </div>
-          <Link
-            to={`/hostels/${hostel.id}`}
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-          >
-            View Details
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to={`/hostels/${hostel.id}`}
+              className="px-3 py-2 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors text-sm"
+            >
+              Details
+            </Link>
+            <Link
+              to={`/book/${hostel.id}`}
+              className="px-3 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors text-sm"
+            >
+              Book Now
+            </Link>
+          </div>
         </div>
       </div>
     </div>

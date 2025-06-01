@@ -22,6 +22,7 @@ import ForumTopics from './pages/ForumTopics';
 import TopicPosts from './pages/TopicPosts';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import Help from './pages/Help';
+import EnhancedBooking from './pages/EnhancedBooking';
 import { ROLES } from './config';
 
 // Routes configuration - no protection for development
@@ -117,6 +118,10 @@ const routes = [
   {
     path: '/help',
     element: <Help />,
+  },
+  {
+    path: '/book/:hostelId',
+    element: <EnhancedBooking />,
   },
   {
     path: '/unauthorized',

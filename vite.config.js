@@ -7,4 +7,22 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js',
   },
+  server: {
+    host: '0.0.0.0',
+    port: 12000,
+    allowedHosts: true,
+    headers: {
+      'X-Frame-Options': 'ALLOWALL',
+    },
+    cors: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 12000,
+    allowedHosts: true,
+    headers: {
+      'X-Frame-Options': 'ALLOWALL',
+    },
+    cors: true,
+  },
 })
