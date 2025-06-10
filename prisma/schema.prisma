@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String
+  first_name String
+  last_name  String
+  role       String    @default("user")
+  phone      String?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  hostels    Hostel[]  @relation("HostelManager")
+  bookings   Booking[]
+  reviews    Review[]
+}
+
+model University {
+  id          Int       @id @default(autoincrement())
+  name        String
+  location    String
+  website     String?
+  description String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  hostels     Hostel[]
+}
+
+model Hostel {
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  description           String
+  address               String
+  university_id         Int
+  manager_id            Int
+  price_per_night       Float
+  rating                Float     @default(0)
+  amenities             String[]
+  room_types            String[]
+  available_rooms       Int
+  total_rooms           Int
+  distance_to_university Float
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  university            University @relation(fields: [university_id], references: [id])
+  manager               User      @relation("HostelManager", fields: [manager_id], references: [id])
+  rooms                 Room[]
+  bookings              Booking[]
+  reviews               Review[]
+}
+
+model Room {
+  id            Int       @id @default(autoincrement())
+  hostel_id     Int
+  name          String
+  type          String
+  description   String
+  price_per_night Float
+  capacity      Int
+  amenities     String[]
+  size_sqm      Float
+  available     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  hostel        Hostel    @relation(fields: [hostel_id], references: [id])
+  bookings      Booking[]
+}
+
+model Booking {
+  id              Int       @id @default(autoincrement())
+  user_id         Int
+  hostel_id       Int
+  room_id         Int
+  check_in_date   DateTime
+  check_out_date  DateTime
+  total_price     Float
+  status          String    @default("pending")
+  payment_status  String    @default("awaiting")
+  special_requests String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  user            User      @relation(fields: [user_id], references: [id])
+  hostel          Hostel    @relation(fields: [hostel_id], references: [id])
+  room            Room      @relation(fields: [room_id], references: [id])
+}
+
+model Review {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  hostel_id  Int
+  rating     Int
+  comment    String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  user       User      @relation(fields: [user_id], references: [id])
+  hostel     Hostel    @relation(fields: [hostel_id], references: [id])
+} 

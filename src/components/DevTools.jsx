@@ -26,9 +26,9 @@ const DevTools = () => {
             <span className="font-medium">Dev Tools</span>
           </div>
           {isOpen ? (
-            <ChevronDown className="h-5 w-5" />
-          ) : (
             <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
           )}
         </button>
 
@@ -40,46 +40,50 @@ const DevTools = () => {
                 <UserCog className="h-5 w-5 mr-2 text-teal-400" />
                 <h3 className="font-medium">User Role</h3>
               </div>
-              <div className="flex flex-col space-y-2 ml-7">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="role-user"
-                    name="role"
-                    checked={user?.role === 'user'}
-                    onChange={() => switchRole('user')}
-                    className="mr-2"
-                  />
-                  <label htmlFor="role-user">User</label>
+              {user ? (
+                <div className="flex flex-col space-y-2 ml-7">
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="role-user"
+                      name="role"
+                      checked={user.role === 'user'}
+                      onChange={() => switchRole('user')}
+                      className="mr-2"
+                    />
+                    <label htmlFor="role-user">User</label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="role-manager"
+                      name="role"
+                      checked={user.role === 'manager'}
+                      onChange={() => switchRole('manager')}
+                      className="mr-2"
+                    />
+                    <label htmlFor="role-manager">Manager</label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="role-admin"
+                      name="role"
+                      checked={user.role === 'admin'}
+                      onChange={() => switchRole('admin')}
+                      className="mr-2"
+                    />
+                    <label htmlFor="role-admin">Admin</label>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="role-manager"
-                    name="role"
-                    checked={user?.role === 'manager'}
-                    onChange={() => switchRole('manager')}
-                    className="mr-2"
-                  />
-                  <label htmlFor="role-manager">Manager</label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="role-admin"
-                    name="role"
-                    checked={user?.role === 'admin'}
-                    onChange={() => switchRole('admin')}
-                    className="mr-2"
-                  />
-                  <label htmlFor="role-admin">Admin</label>
-                </div>
-              </div>
+              ) : (
+                <p className="text-gray-400 ml-7">Please log in to switch roles</p>
+              )}
             </div>
 
             <div className="text-xs text-gray-400 mt-4 border-t border-gray-700 pt-2">
-              <p>Current user: {user?.email}</p>
-              <p>Role: {user?.role}</p>
+              <p>Current user: {user?.email || 'Not logged in'}</p>
+              <p>Role: {user?.role || 'None'}</p>
               <p>Auth status: {isAuthenticated ? 'Authenticated' : 'Not authenticated'}</p>
             </div>
           </div>

@@ -4,15 +4,18 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { Building, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { APP_NAME } from "../config";
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
-  const { login, isAuthenticated } = useAuth();
+  const { login, user } = useAuth();
   const { error: showError, success: showSuccess } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,48 +23,61 @@ const Login = () => {
   // Get the redirect path from location state or default to dashboard
   const from = location.state?.from || "/dashboard";
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
+    if (user) {
+      navigate('/dashboard');
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [user, navigate]);
 
   // Check for saved email
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
-      setEmail(savedEmail);
+      setFormData(prev => ({
+        ...prev,
+        email: savedEmail
+      }));
       setRememberMe(true);
     }
   }, []);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
-    if (!email || !password) {
+    if (!formData.email || !formData.password) {
       showError("Please enter both email and password");
+      setLoading(false);
       return;
     }
 
-    setIsSubmitting(true);
-    
     try {
       // Handle remember me
       if (rememberMe) {
-        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberedEmail", formData.email);
       } else {
         localStorage.removeItem("rememberedEmail");
       }
       
-      await login(email, password);
-      showSuccess("Login successful! Welcome back.");
-      navigate(from, { replace: true });
-    } catch (err) {
-      showError(err.message || "Login failed. Please check your credentials.");
-      setPassword(""); // Clear password on error
+      await login(formData.email, formData.password);
+      toast.success('Login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.message || 'Failed to login');
+      setFormData(prev => ({
+        ...prev,
+        password: ''
+      }));
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -94,8 +110,8 @@ const Login = () => {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:text-white"
                 placeholder="you@example.com"
               />
@@ -116,8 +132,8 @@ const Login = () => {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:text-white"
                 placeholder="••••••••"
               />
@@ -161,10 +177,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={loading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
         </form>

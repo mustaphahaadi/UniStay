@@ -28,8 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch('/api/auth/login/', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,32 +37,33 @@ export const AuthProvider = ({ children }) => {
       })
 
       if (!response.ok) {
-        throw new Error("Invalid credentials")
+        const data = await response.json();
+        throw new Error(data.detail || "Invalid credentials");
       }
 
-      const data = await response.json()
+      const data = await response.json();
       const userData = {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        avatar: data.avatar,
+        id: data.user.id,
+        email: data.user.email,
+        name: `${data.user.first_name} ${data.user.last_name}`,
+        role: data.user.role,
+        avatar: data.user.avatar,
       }
 
-      setUser(userData)
-      localStorage.setItem("user", JSON.stringify(userData))
-      toast.success("Login successful!")
-      return true
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", data.token);
+      toast.success("Login successful!");
+      return true;
     } catch (error) {
-      toast.error(error.message || "Failed to login")
-      throw error
+      toast.error(error.message || "Failed to login");
+      throw error;
     }
   }
 
   const register = async (userData) => {
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch('/api/auth/register/', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,24 +72,39 @@ export const AuthProvider = ({ children }) => {
       })
 
       if (!response.ok) {
-        throw new Error("Registration failed")
+        const data = await response.json();
+        throw new Error(data.detail || "Registration failed");
       }
 
-      const data = await response.json()
-      toast.success("Registration successful! Please login.")
-      return true
+      const data = await response.json();
+      toast.success("Registration successful! Please login.");
+      return true;
     } catch (error) {
-      toast.error(error.message || "Failed to register")
-      throw error
+      toast.error(error.message || "Failed to register");
+      throw error;
     }
   }
 
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
+    localStorage.removeItem("token")
     toast.success("Logged out successfully")
     return true
   }
+
+  const switchRole = (newRole) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      role: newRole
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    toast.success(`Role switched to ${newRole}`);
+  };
 
   const isManager = () => {
     return user?.role === "manager"
@@ -109,6 +124,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    switchRole,
     isManager,
     isAdmin,
     isAuthenticated,
