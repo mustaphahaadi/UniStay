@@ -1,126 +1,120 @@
 "use client"
 
-import { createContext, useState, useEffect, useContext } from "react"
-import { API_URL } from "../config"
-import { storeUserData, clearAuthData } from "../utils/authUtils"
+import { createContext, useContext, useState, useEffect } from "react"
+import { toast } from "react-hot-toast"
 
 const AuthContext = createContext()
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider")
+  }
+  return context
+}
 
 export const AuthProvider = ({ children }) => {
-  // For development, set a default user and authentication state
-  const defaultUser = {
-    id: 1,
-    email: "user@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "user",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-  };
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const [user, setUser] = useState(defaultUser)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(true) // Always authenticated for development
-  const [userRole, setUserRole] = useState("user") // Default role
-
-  // For development, we'll skip the token validation
   useEffect(() => {
-    // Store the default user data
-    storeUserData(defaultUser);
-    
-    // Set a mock token
-    localStorage.setItem("token", "mock-token-1-development");
-    
-    // Set loading to false immediately
-    setLoading(false);
+    // Check if user is logged in
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+    setLoading(false)
   }, [])
 
   const login = async (email, password) => {
-    setError(null)
     try {
-      // For development, just return success without actual API call
-      const mockUser = {
-        id: 1,
-        email: email,
-        firstName: "John",
-        lastName: "Doe",
-        role: email.includes("manager") ? "manager" : email.includes("admin") ? "admin" : "user",
-        avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-      };
-      
-      // Store authentication data
-      localStorage.setItem("token", `mock-token-1-${Date.now()}`);
-      storeUserData(mockUser);
-      
-      // Update state
-      setUser(mockUser);
-      setUserRole(mockUser.role);
-      setIsAuthenticated(true);
-      
-      return mockUser;
-    } catch (err) {
-      setError(err.message)
-      throw err
+      // TODO: Replace with actual API call
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Invalid credentials")
+      }
+
+      const data = await response.json()
+      const userData = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role,
+        avatar: data.avatar,
+      }
+
+      setUser(userData)
+      localStorage.setItem("user", JSON.stringify(userData))
+      toast.success("Login successful!")
+      return true
+    } catch (error) {
+      toast.error(error.message || "Failed to login")
+      throw error
     }
   }
 
   const register = async (userData) => {
-    setError(null)
     try {
-      // For development, just return success without actual API call
-      return { success: true, message: "Registration successful" };
-    } catch (err) {
-      setError(err.message)
-      throw err
+      // TODO: Replace with actual API call
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Registration failed")
+      }
+
+      const data = await response.json()
+      toast.success("Registration successful! Please login.")
+      return true
+    } catch (error) {
+      toast.error(error.message || "Failed to register")
+      throw error
     }
   }
 
   const logout = () => {
-    clearAuthData()
-    
-    // For development, immediately set back to default user
-    setUser(defaultUser)
-    setUserRole("user")
-    setIsAuthenticated(true)
-    
-    // Store the default user data again
-    storeUserData(defaultUser);
-    localStorage.setItem("token", "mock-token-1-development");
+    setUser(null)
+    localStorage.removeItem("user")
+    toast.success("Logged out successfully")
+    return true
   }
 
   const isManager = () => {
-    return user && (user.role === "manager" || user.role === "admin")
+    return user?.role === "manager"
   }
 
   const isAdmin = () => {
-    return user && user.role === "admin"
+    return user?.role === "admin"
   }
 
-  // For development, provide a way to switch roles
-  const switchRole = (role) => {
-    if (["user", "manager", "admin"].includes(role)) {
-      const updatedUser = { ...user, role };
-      setUser(updatedUser);
-      setUserRole(role);
-      storeUserData(updatedUser);
-    }
+  const isAuthenticated = () => {
+    return !!user
   }
 
   const value = {
     user,
     loading,
-    error,
-    isAuthenticated,
-    userRole,
     login,
     register,
     logout,
     isManager,
     isAdmin,
-    switchRole, // Development helper
+    isAuthenticated,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
+
+export default AuthContext

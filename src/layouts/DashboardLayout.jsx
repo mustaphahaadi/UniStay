@@ -11,12 +11,7 @@ const DashboardLayout = () => {
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar isManager={isManager()} />
       <div className="flex-1 p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Welcome, {user?.first_name || "User"}</h1>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   )

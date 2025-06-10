@@ -16,10 +16,13 @@ import {
   User,
   PlusCircle,
   BarChart,
+  Users,
+  Shield,
+  AlertCircle,
 } from "lucide-react"
 
 const Sidebar = ({ isMobile, toggleSidebar }) => {
-  const { user, isManager, logout } = useAuth()
+  const { user, isManager, isAdmin, logout } = useAuth()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -53,7 +56,17 @@ const Sidebar = ({ isMobile, toggleSidebar }) => {
     { path: "/manager/settings", icon: <Settings className="h-5 w-5" />, text: "Settings" },
   ]
 
-  const links = isManager() ? managerLinks : userLinks
+  const adminLinks = [
+    { path: "/admin", icon: <Shield className="h-5 w-5" />, text: "Dashboard" },
+    { path: "/admin/users", icon: <Users className="h-5 w-5" />, text: "User Management" },
+    { path: "/admin/hostels", icon: <Building className="h-5 w-5" />, text: "Hostel Management" },
+    { path: "/admin/bookings", icon: <Calendar className="h-5 w-5" />, text: "Booking Management" },
+    { path: "/admin/analytics", icon: <BarChart className="h-5 w-5" />, text: "Analytics" },
+    { path: "/admin/alerts", icon: <AlertCircle className="h-5 w-5" />, text: "System Alerts" },
+    { path: "/admin/settings", icon: <Settings className="h-5 w-5" />, text: "System Settings" },
+  ]
+
+  const links = isAdmin() ? adminLinks : isManager() ? managerLinks : userLinks
 
   return (
     <div
@@ -80,7 +93,7 @@ const Sidebar = ({ isMobile, toggleSidebar }) => {
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === "/dashboard" || link.path === "/manager"}
+              end={link.path === "/dashboard" || link.path === "/manager" || link.path === "/admin"}
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 rounded-md transition-colors ${
                   isActive

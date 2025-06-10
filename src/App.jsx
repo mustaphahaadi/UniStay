@@ -1,47 +1,20 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import './App.css';
-
-// Components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ErrorBoundary from './components/ErrorBoundary';
-import NotificationSystem from './components/NotificationSystem';
-import DevTools from './components/DevTools';
-
-// Routes
-import routes from './routes.jsx';
-
-// Contexts
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { NotificationProvider } from './contexts/NotificationContext';
-import { FavoritesProvider } from './contexts/FavoritesContext';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { MessagingProvider } from './contexts/MessagingContext';
-import { CommunityProvider } from './contexts/CommunityContext';
+import { RouterProvider } from "react-router-dom"
+import { Toaster } from "react-hot-toast"
+import { AuthProvider } from "./contexts/AuthContext"
+import { ThemeProvider } from "./contexts/ThemeContext"
+import { NotificationProvider } from "./contexts/NotificationContext"
+import { FavoritesProvider } from "./contexts/FavoritesContext"
+import { LanguageProvider } from "./contexts/LanguageContext"
+import { MessagingProvider } from "./contexts/MessagingContext"
+import { CommunityProvider } from "./contexts/CommunityContext"
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
+import DevTools from "./components/DevTools"
+import NotificationSystem from "./components/NotificationSystem"
+import ErrorBoundary from "./components/ErrorBoundary"
+import router from "./routes"
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
-        <p>Loading UniStay...</p>
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <ThemeProvider>
@@ -51,25 +24,16 @@ function App() {
               <FavoritesProvider>
                 <MessagingProvider>
                   <CommunityProvider>
-                    <Router>
-                      <div className="app-container">
-                        <Navbar />
-                        <NotificationSystem />
-                        <main className="main-content">
-                          <Routes>
-                            {routes.map((route, index) => (
-                              <Route 
-                                key={index}
-                                path={route.path}
-                                element={route.element}
-                              />
-                            ))}
-                          </Routes>
-                        </main>
-                        <Footer />
-                        <DevTools /> {/* Development tools */}
-                      </div>
-                    </Router>
+                    <div className="app-container">
+                      <Navbar />
+                      <NotificationSystem />
+                      <main className="main-content">
+                        <RouterProvider router={router} />
+                      </main>
+                      <Footer />
+                      <DevTools />
+                    </div>
+                    <Toaster position="top-right" />
                   </CommunityProvider>
                 </MessagingProvider>
               </FavoritesProvider>
@@ -78,7 +42,7 @@ function App() {
         </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>
-  );
+  )
 }
 
-export default App;
+export default App
