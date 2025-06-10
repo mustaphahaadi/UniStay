@@ -13,7 +13,7 @@
     "date-fns": "^3.0.0",
     "jwt-decode": "^4.0.0",
     "lodash.debounce": "^4.0.8",
-    "lucide-react": "^0.300.0",
+    "lucide-react": "^0.460.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

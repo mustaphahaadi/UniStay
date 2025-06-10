@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search as SearchIcon, MapPin, List, Map, SlidersHorizontal } from "lucide-react";
+import { Search as SearchIcon, MapPin, List, Map, SlidersHorizontal, Brain } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { hostelService } from "../services/api";
 import HostelCard from "../components/HostelCard";
 import MapView from "../components/MapView";
 import SearchFilters from "../components/SearchFilters";
+import AdvancedSearchFilters from "../components/AdvancedSearchFilters";
+import AIRecommendations from "../components/AIRecommendations";
 import ComparisonModal from "../components/ComparisonModal";
 
 const Search = () => {
@@ -17,6 +19,8 @@ const Search = () => {
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState("list");
   const [showFilters, setShowFilters] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showAIRecommendations, setShowAIRecommendations] = useState(false);
   const [compareHostels, setCompareHostels] = useState([]);
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   
@@ -26,11 +30,13 @@ const Search = () => {
 
   // Filters state
   const [filters, setFilters] = useState({
-    priceRange: [0, 1000],
+    priceRange: [0, 2000],
+    distance: 10,
+    rating: 0,
     amenities: [],
     roomTypes: [],
+    availability: '',
     university: universityId,
-    rating: 0,
   });
 
   // Fetch hostels on mount and when search params change
@@ -195,13 +201,29 @@ const Search = () => {
 
       {/* Filters and view toggles */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div className="flex items-center">
+        <div className="flex items-center flex-wrap gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             {t("search.filters")}
+          </button>
+          
+          <button
+            onClick={() => setShowAdvancedFilters(true)}
+            className="flex items-center px-3 py-2 bg-teal-50 dark:bg-teal-900/20 border border-teal-300 dark:border-teal-600 rounded-md shadow-sm text-sm font-medium text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/30"
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Advanced Filters
+          </button>
+          
+          <button
+            onClick={() => setShowAIRecommendations(!showAIRecommendations)}
+            className="flex items-center px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-300 dark:border-purple-600 rounded-md shadow-sm text-sm font-medium text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+          >
+            <Brain className="h-4 w-4 mr-2" />
+            AI Recommendations
           </button>
           
           <div className="ml-4 text-sm text-gray-500 dark:text-gray-400">
@@ -252,6 +274,29 @@ const Search = () => {
           onFilterChange={handleFilterChange}
           initialFilters={filters}
         />
+      )}
+
+      {/* Advanced Filters Modal */}
+      {showAdvancedFilters && (
+        <AdvancedSearchFilters
+          filters={filters}
+          onFiltersChange={(newFilters) => {
+            setFilters(newFilters);
+            applyFilters(hostels, newFilters);
+          }}
+          onClose={() => setShowAdvancedFilters(false)}
+        />
+      )}
+
+      {/* AI Recommendations */}
+      {showAIRecommendations && (
+        <div className="mb-6">
+          <AIRecommendations
+            userId={1} // In a real app, get from auth context
+            userPreferences={filters}
+            currentLocation="University Campus"
+          />
+        </div>
       )}
 
       {/* Error message */}
