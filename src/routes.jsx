@@ -35,61 +35,116 @@ import TopicPosts from './pages/TopicPosts'
 import MaintenanceRequests from './pages/MaintenanceRequests'
 import Help from './pages/Help'
 import ErrorPage from "./pages/ErrorPage"
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
+import DevTools from "./components/DevTools"
+import NotificationSystem from "./components/NotificationSystem"
 
-// Create the router configuration
+const RootLayout = ({ children }) => (
+  <div className="app-container">
+    <Navbar />
+    <NotificationSystem />
+    <main className="main-content">
+      {children}
+    </main>
+    <Footer />
+    <DevTools />
+  </div>
+)
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <RootLayout>
+        <Home />
+      </RootLayout>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: "/login",
     element: (
-      <GuestOnlyRoute>
-        <Login />
-      </GuestOnlyRoute>
+      <RootLayout>
+        <GuestOnlyRoute>
+          <Login />
+        </GuestOnlyRoute>
+      </RootLayout>
     )
   },
   {
     path: "/register",
     element: (
-      <GuestOnlyRoute>
-        <Register />
-      </GuestOnlyRoute>
+      <RootLayout>
+        <GuestOnlyRoute>
+          <Register />
+        </GuestOnlyRoute>
+      </RootLayout>
     )
   },
   {
     path: "/forgot-password",
-    element: <ForgotPassword />
+    element: (
+      <RootLayout>
+        <ForgotPassword />
+      </RootLayout>
+    )
   },
   {
     path: "/reset-password",
-    element: <ResetPassword />
+    element: (
+      <RootLayout>
+        <ResetPassword />
+      </RootLayout>
+    )
   },
   {
     path: "/hostels",
-    element: <HostelListing />
+    element: (
+      <RootLayout>
+        <HostelListing />
+      </RootLayout>
+    )
   },
   {
     path: "/hostels/:id",
-    element: <HostelDetails />
+    element: (
+      <RootLayout>
+        <HostelDetails />
+      </RootLayout>
+    )
   },
   {
     path: "/privacy-policy",
-    element: <PrivacyPolicy />
+    element: (
+      <RootLayout>
+        <PrivacyPolicy />
+      </RootLayout>
+    )
   },
   {
     path: "/terms-of-service",
-    element: <TermsOfService />
+    element: (
+      <RootLayout>
+        <TermsOfService />
+      </RootLayout>
+    )
   },
   {
     path: "/about",
-    element: <About />
+    element: (
+      <RootLayout>
+        <About />
+      </RootLayout>
+    )
   },
   {
     path: "/contact",
-    element: <Contact />
+    element: (
+      <RootLayout>
+        <Contact />
+      </RootLayout>
+    )
   },
   {
     path: "/dashboard",
@@ -195,31 +250,59 @@ const router = createBrowserRouter([
   },
   {
     path: "/search",
-    element: <Search />
+    element: (
+      <RootLayout>
+        <Search />
+      </RootLayout>
+    )
   },
   {
     path: "/community",
-    element: <Community />
+    element: (
+      <RootLayout>
+        <Community />
+      </RootLayout>
+    )
   },
   {
     path: "/forum/:category",
-    element: <ForumTopics />
+    element: (
+      <RootLayout>
+        <ForumTopics />
+      </RootLayout>
+    )
   },
   {
     path: "/topic/:id",
-    element: <TopicPosts />
+    element: (
+      <RootLayout>
+        <TopicPosts />
+      </RootLayout>
+    )
   },
   {
     path: "/maintenance",
-    element: <MaintenanceRequests />
+    element: (
+      <RootLayout>
+        <MaintenanceRequests />
+      </RootLayout>
+    )
   },
   {
     path: "/help",
-    element: <Help />
+    element: (
+      <RootLayout>
+        <Help />
+      </RootLayout>
+    )
   },
   {
     path: "*",
-    element: <NotFound />
+    element: (
+      <RootLayout>
+        <NotFound />
+      </RootLayout>
+    )
   }
 ])
 

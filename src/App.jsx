@@ -24,15 +24,7 @@ function App() {
               <FavoritesProvider>
                 <MessagingProvider>
                   <CommunityProvider>
-                    <div className="app-container">
-                      <Navbar />
-                      <NotificationSystem />
-                      <main className="main-content">
-                        <RouterProvider router={router} />
-                      </main>
-                      <Footer />
-                      <DevTools />
-                    </div>
+                    <RouterProvider router={router} />
                     <Toaster position="top-right" />
                   </CommunityProvider>
                 </MessagingProvider>
