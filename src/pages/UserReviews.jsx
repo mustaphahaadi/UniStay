@@ -133,7 +133,7 @@ const UserReviews = () => {
             >
               <option value="all">All Reviews</option>
               <option value="high">High Ratings (4+)</option>
-              <option value="low">Low Ratings (< 4)</option>
+              <option value="low">Low Ratings (&lt; 4)</option>
             </select>
             <Link 
               to="/hostels" 

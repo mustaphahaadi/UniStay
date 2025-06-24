@@ -23,7 +23,7 @@ import {
   Star,
   CreditCard,
   TrendingUp,
-  Tool,
+  Wrench,
   GraduationCap,
   FileText
 } from "lucide-react"
@@ -67,7 +67,7 @@ const Sidebar = ({ isMobile, toggleSidebar }) => {
     { path: "/manager/rooms", icon: <Home className="h-5 w-5" />, text: "Room Management" },
     { path: "/manager/messages", icon: <MessageSquare className="h-5 w-5" />, text: "Messages" },
     { path: "/manager/reviews", icon: <Star className="h-5 w-5" />, text: "Reviews" },
-    { path: "/manager/maintenance", icon: <Tool className="h-5 w-5" />, text: "Maintenance" },
+    { path: "/manager/maintenance", icon: <Wrench className="h-5 w-5" />, text: "Maintenance" },
     { path: "/manager/analytics", icon: <TrendingUp className="h-5 w-5" />, text: "Analytics" },
     { path: "/manager/payments", icon: <CreditCard className="h-5 w-5" />, text: "Payments" },
     { path: "/manager/settings", icon: <Settings className="h-5 w-5" />, text: "Settings" },
