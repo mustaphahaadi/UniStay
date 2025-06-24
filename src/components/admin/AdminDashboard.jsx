@@ -69,7 +69,7 @@ const AdminDashboard = ({ stats = {} }) => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold mb-3">Admin Dashboard 🛡️</h1>
@@ -80,7 +80,7 @@ const AdminDashboard = ({ stats = {} }) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {statCards.map((stat, index) => (
           <Card key={index} className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -101,7 +101,7 @@ const AdminDashboard = ({ stats = {} }) => {
 
       {/* Tabs for different admin sections */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-2xl">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-gray-100 p-1 rounded-2xl overflow-x-auto">
           <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">Overview</TabsTrigger>
           <TabsTrigger value="users" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">Users</TabsTrigger>
           <TabsTrigger value="hostels" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">Hostels</TabsTrigger>
@@ -110,7 +110,7 @@ const AdminDashboard = ({ stats = {} }) => {
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
@@ -182,8 +182,8 @@ const AdminDashboard = ({ stats = {} }) => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="min-w-full divide-y divide-gray-200 table-auto">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
@@ -246,7 +246,7 @@ const AdminDashboard = ({ stats = {} }) => {
         </TabsContent>
 
         <TabsContent value="hostels" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg lg:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-xl font-bold">Hostel Management</CardTitle>
@@ -388,7 +388,7 @@ const AdminDashboard = ({ stats = {} }) => {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-bold">System Settings</CardTitle>

@@ -88,7 +88,7 @@ const UserDashboard = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold mb-3">Welcome back, {user?.name}! 👋</h1>
@@ -99,7 +99,7 @@ const UserDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800">Total Bookings</h3>
@@ -146,7 +146,7 @@ const UserDashboard = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         {/* Upcoming Bookings */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
           <div className="flex items-center justify-between mb-8">
@@ -169,8 +169,8 @@ const UserDashboard = () => {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="min-w-full divide-y divide-gray-200 table-auto">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -318,7 +318,7 @@ const UserDashboard = () => {
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3].map((_, index) => (
               <div key={index} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                 <div className="h-40 bg-gray-200">

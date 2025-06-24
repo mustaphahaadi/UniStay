@@ -69,7 +69,7 @@ const ManagerDashboard = ({ stats = {} }) => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold mb-3">Manager Dashboard 🏢</h1>
@@ -80,7 +80,7 @@ const ManagerDashboard = ({ stats = {} }) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {statCards.map((stat, index) => (
           <Card key={index} className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg bg-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -101,7 +101,7 @@ const ManagerDashboard = ({ stats = {} }) => {
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-2xl">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-gray-100 p-1 rounded-2xl">
           <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">Overview</TabsTrigger>
           <TabsTrigger value="hostels" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">My Hostels</TabsTrigger>
           <TabsTrigger value="bookings" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">Bookings</TabsTrigger>
@@ -109,7 +109,7 @@ const ManagerDashboard = ({ stats = {} }) => {
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
