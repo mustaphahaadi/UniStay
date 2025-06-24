@@ -23,23 +23,9 @@ const Login = () => {
   // Get the redirect path from location state or default to dashboard
   const from = location.state?.from || "/dashboard";
 
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
 
-  // Check for saved email
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("rememberedEmail");
-    if (savedEmail) {
-      setFormData(prev => ({
-        ...prev,
-        email: savedEmail
-      }));
-      setRememberMe(true);
-    }
-  }, []);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

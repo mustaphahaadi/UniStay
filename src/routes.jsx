@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { ProtectedRoute, ManagerRoute, AdminRoute, GuestOnlyRoute } from "./utils/routeUtils.jsx"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
@@ -304,6 +304,11 @@ const router = createBrowserRouter([
       </RootLayout>
     )
   }
-])
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+})
 
 export default router

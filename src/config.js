@@ -1,5 +1,5 @@
 // API configuration
-export const API_URL = import.meta.env.VITE_API_URL || "https://api.unistay.com/api"
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api"
 
 // Application name and branding
 export const APP_NAME = "UniStay"
