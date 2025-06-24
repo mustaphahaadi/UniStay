@@ -39,6 +39,9 @@ const HostelListing = () => {
         setLocations(locationsData)
       } catch (error) {
         console.error("Error fetching filter data:", error)
+        // Set fallback data
+        setUniversities([])
+        setLocations([])
       }
     }
 
@@ -67,6 +70,9 @@ const HostelListing = () => {
         setTotalPages(Math.ceil(data.count / 12)) // Assuming 12 items per page
       } catch (error) {
         console.error("Error fetching hostels:", error)
+        // Set empty array on error
+        setHostels([])
+        setTotalPages(1)
       } finally {
         setLoading(false)
       }

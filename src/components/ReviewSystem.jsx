@@ -23,13 +23,20 @@ const ReviewSystem = ({ hostelId }) => {
   const [sortBy, setSortBy] = useState("recent")
 
   useEffect(() => {
-    fetchReviews()
+    if (hostelId) {
+      fetchReviews()
+    }
   }, [hostelId])
 
   const fetchReviews = async () => {
+    if (!hostelId) return;
+    
     setLoading(true)
     try {
       const response = await fetch(`${API_URL}/hostels/${hostelId}/reviews/`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
       const data = await response.json()
 
       if (response.ok) {

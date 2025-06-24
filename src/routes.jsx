@@ -15,6 +15,10 @@ import UserManagement from "./pages/admin/UserManagement"
 import HostelManagement from "./pages/admin/HostelManagement"
 import BookingManagement from "./pages/admin/BookingManagement"
 import AdminAnalytics from "./pages/admin/AdminAnalytics"
+import UserReviews from "./pages/UserReviews"
+import UserPayments from "./pages/UserPayments"
+import RoomManagement from "./pages/RoomManagement"
+import UniversitiesManagement from "./pages/UniversitiesManagement"
 import DashboardLayout from "./layouts/DashboardLayout"
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -180,6 +184,14 @@ const router = createBrowserRouter([
         element: <Messages />
       },
       {
+        path: "reviews",
+        element: <UserReviews />
+      },
+      {
+        path: "payments",
+        element: <UserPayments />
+      },
+      {
         path: "settings",
         element: <Settings />
       }
@@ -208,6 +220,10 @@ const router = createBrowserRouter([
       {
         path: "edit-hostel/:id",
         element: <EditHostel />
+      },
+      {
+        path: "rooms",
+        element: <RoomManagement />
       },
       {
         path: "messages",
@@ -242,6 +258,10 @@ const router = createBrowserRouter([
       {
         path: "bookings",
         element: <BookingManagement />
+      },
+      {
+        path: "universities",
+        element: <UniversitiesManagement />
       },
       {
         path: "analytics",

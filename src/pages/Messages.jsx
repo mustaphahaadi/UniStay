@@ -77,8 +77,8 @@ const Messages = () => {
 
   const filteredConversations = conversations.filter(
     (conv) =>
-      conv.other_user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (conv.hostel && conv.hostel.name.toLowerCase().includes(searchTerm.toLowerCase())),
+      conv.other_user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (conv.hostel?.name?.toLowerCase().includes(searchTerm.toLowerCase())),
   )
 
   return (

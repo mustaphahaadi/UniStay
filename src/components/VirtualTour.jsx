@@ -2,9 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, X, Maximize, Minimize, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const VirtualTour = ({ tourImages, onClose }) => {
+const VirtualTour = ({ tourImages = [], onClose }) => {
   const { t } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Early return if no images
+  if (!tourImages || tourImages.length === 0) {
+    return null;
+  }
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showInfo, setShowInfo] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
@@ -101,8 +106,8 @@ const VirtualTour = ({ tourImages, onClose }) => {
       {/* Main image display */}
       <div className="flex-grow flex items-center justify-center relative">
         <img 
-          src={tourImages[currentImageIndex].url} 
-          alt={tourImages[currentImageIndex].caption || `Tour image ${currentImageIndex + 1}`}
+          src={tourImages[currentImageIndex]?.url || '/placeholder.jpg'} 
+          alt={tourImages[currentImageIndex]?.caption || `Tour image ${currentImageIndex + 1}`}
           className="max-h-full max-w-full object-contain"
         />
         

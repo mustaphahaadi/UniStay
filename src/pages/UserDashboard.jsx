@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
-import { Building, Calendar, Clock, MapPin, School, Star, Bell, MessageSquare } from "lucide-react"
+import { Building, Calendar, Clock, MapPin, School, Star, Bell, MessageSquare, CreditCard } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import Rating from "../components/Rating"
 
@@ -38,9 +38,19 @@ const UserDashboard = () => {
           }),
         ])
 
-        const bookingsData = await bookingsResponse.json()
-        const notificationsData = await notificationsResponse.json()
-        const messagesData = await messagesResponse.json()
+        let bookingsData = [];
+        let notificationsData = [];
+        let messagesData = [];
+
+        if (bookingsResponse.ok) {
+          bookingsData = await bookingsResponse.json();
+        }
+        if (notificationsResponse.ok) {
+          notificationsData = await notificationsResponse.json();
+        }
+        if (messagesResponse.ok) {
+          messagesData = await messagesResponse.json();
+        }
 
         setBookings(bookingsData)
         setNotifications(notificationsData)
@@ -78,66 +88,71 @@ const UserDashboard = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-lg shadow-lg p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.name}!</h1>
-        <p className="text-teal-100">Here's what's happening with your bookings</p>
+      <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold mb-3">Welcome back, {user?.name}! 👋</h1>
+          <p className="text-white/90 text-lg">Here's your accommodation dashboard overview</p>
+        </div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Total Bookings</h3>
-            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-teal-100 text-teal-600">
-              <Building className="h-5 w-5" />
+            <h3 className="text-lg font-semibold text-gray-800">Total Bookings</h3>
+            <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600">
+              <Building className="h-6 w-6" />
             </div>
           </div>
-          <p className="text-3xl font-bold">{bookings.length}</p>
-          <p className="text-sm text-gray-500 mt-1">All time</p>
+          <p className="text-4xl font-bold text-gray-900 mb-1">{bookings.length}</p>
+          <p className="text-sm text-gray-500">All time bookings</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Recent Bookings</h3>
-            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600">
-              <Clock className="h-5 w-5" />
+            <h3 className="text-lg font-semibold text-gray-800">Recent Bookings</h3>
+            <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600">
+              <Clock className="h-6 w-6" />
             </div>
           </div>
-          <p className="text-3xl font-bold">{recentBookings.length}</p>
-          <p className="text-sm text-gray-500 mt-1">Last 30 days</p>
+          <p className="text-4xl font-bold text-gray-900 mb-1">{recentBookings.length}</p>
+          <p className="text-sm text-gray-500">Last 30 days</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Upcoming Stays</h3>
-            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-green-100 text-green-600">
-              <Calendar className="h-5 w-5" />
+            <h3 className="text-lg font-semibold text-gray-800">Upcoming Stays</h3>
+            <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 text-green-600">
+              <Calendar className="h-6 w-6" />
             </div>
           </div>
-          <p className="text-3xl font-bold">{upcomingBookings.length}</p>
-          <p className="text-sm text-gray-500 mt-1">Future bookings</p>
+          <p className="text-4xl font-bold text-gray-900 mb-1">{upcomingBookings.length}</p>
+          <p className="text-sm text-gray-500">Future bookings</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Unread Messages</h3>
-            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-purple-600">
-              <MessageSquare className="h-5 w-5" />
+            <h3 className="text-lg font-semibold text-gray-800">Unread Messages</h3>
+            <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-200 text-orange-600">
+              <MessageSquare className="h-6 w-6" />
             </div>
           </div>
-          <p className="text-3xl font-bold">{messages.filter(m => !m.read).length}</p>
-          <p className="text-sm text-gray-500 mt-1">New messages</p>
+          <p className="text-4xl font-bold text-gray-900 mb-1">{messages.filter(m => !m.read).length}</p>
+          <p className="text-sm text-gray-500">New messages</p>
         </div>
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Bookings */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Upcoming Bookings</h2>
-            <Link to="/bookings" className="text-sm text-teal-600 hover:text-teal-700">
-              View all
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">Upcoming Bookings</h2>
+            <Link to="/bookings" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors">
+              View all →
             </Link>
           </div>
 
@@ -227,11 +242,11 @@ const UserDashboard = () => {
         {/* Notifications and Messages */}
         <div className="space-y-6">
           {/* Notifications */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Notifications</h2>
-              <Link to="/notifications" className="text-sm text-teal-600 hover:text-teal-700">
-                View all
+              <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
+              <Link to="/notifications" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-3 py-1 rounded-lg hover:bg-purple-50 transition-colors">
+                View all →
               </Link>
             </div>
             {loading ? (
@@ -258,11 +273,11 @@ const UserDashboard = () => {
           </div>
 
           {/* Messages */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Recent Messages</h2>
-              <Link to="/messages" className="text-sm text-teal-600 hover:text-teal-700">
-                View all
+              <h2 className="text-xl font-bold text-gray-900">Recent Messages</h2>
+              <Link to="/messages" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-3 py-1 rounded-lg hover:bg-purple-50 transition-colors">
+                View all →
               </Link>
             </div>
             {loading ? (
@@ -292,11 +307,11 @@ const UserDashboard = () => {
       </div>
 
       {/* Recommended Hostels */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Recommended Hostels</h2>
-          <Link to="/hostels" className="text-sm text-teal-600 hover:text-teal-700">
-            View all
+      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Recommended Hostels</h2>
+          <Link to="/hostels" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors">
+            View all →
           </Link>
         </div>
 
@@ -337,6 +352,96 @@ const UserDashboard = () => {
             ))}
           </div>
         )}
+      </div>
+      
+      {/* Recent Reviews */}
+      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Your Recent Reviews</h2>
+          <Link to="/dashboard/reviews" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors">
+            View all →
+          </Link>
+        </div>
+        
+        <div className="space-y-6">
+          {[1, 2].map((_, index) => (
+            <div key={index} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden mr-4">
+                    <img
+                      src={`/placeholder.svg?height=48&width=48&text=H${index + 1}`}
+                      alt={`Hostel ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Campus Haven Hostel {index + 1}</h3>
+                    <p className="text-sm text-gray-500">Reviewed on {new Date().toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <Rating value={4 + index * 0.5} size="sm" readOnly />
+              </div>
+              <p className="text-gray-700">"Great accommodation with excellent facilities. The staff were very helpful and the location is perfect for university access."</p>
+              <div className="mt-3 flex justify-end">
+                <button className="text-sm text-blue-600 hover:text-blue-800">Edit Review</button>
+              </div>
+            </div>
+          ))}
+          
+          {[1, 2].length === 0 && (
+            <div className="text-center py-8">
+              <Star className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">You haven't written any reviews yet</p>
+              <button className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+                Write Your First Review
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Payment History */}
+      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Recent Payments</h2>
+          <Link to="/dashboard/payments" className="text-sm text-purple-600 hover:text-purple-700 font-medium px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors">
+            View all →
+          </Link>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostel</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {[1, 2, 3].map((_, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TXN-{Math.floor(Math.random() * 10000)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date().toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Campus Haven {index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₵{(1200 + index * 300).toLocaleString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      index === 0 ? 'bg-green-100 text-green-800' : 
+                      index === 1 ? 'bg-blue-100 text-blue-800' : 
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {index === 0 ? 'Completed' : index === 1 ? 'Processing' : 'Pending'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

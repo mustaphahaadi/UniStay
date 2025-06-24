@@ -281,6 +281,15 @@ export const MessagingProvider = ({ children }) => {
     // In a real app, you would fetch updated conversations from the server
   };
 
+  // Fetch conversations (alias for refreshConversations)
+  const fetchConversations = refreshConversations;
+
+  // Select conversation
+  const selectConversation = (conversation) => {
+    setActiveConversation(conversation);
+    fetchMessages(conversation.id);
+  };
+
   const value = {
     conversations,
     activeConversation,
@@ -288,8 +297,10 @@ export const MessagingProvider = ({ children }) => {
     loading,
     unreadCount,
     fetchMessages,
+    fetchConversations,
     sendMessage,
     startConversation,
+    selectConversation,
     markConversationAsRead,
     refreshConversations,
   };

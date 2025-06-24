@@ -27,7 +27,7 @@ export const authService = {
   login: async (email, password) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.authApi.login(email, password);
+        return await mockApiService.post('/auth/login/', { email, password });
       } catch (error) {
         return handleApiError(error);
       }
@@ -51,7 +51,7 @@ export const authService = {
   validateToken: async (token) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.authApi.validateToken(token);
+        return await mockApiService.get('/auth/validate/');
       } catch (error) {
         return handleApiError(error);
       }
@@ -76,7 +76,7 @@ export const hostelService = {
   getAll: async () => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.hostelsApi.getAll();
+        return await mockApiService.get('/hostels/');
       } catch (error) {
         return handleApiError(error);
       }
@@ -127,7 +127,7 @@ export const hostelService = {
   search: async (query, filters = {}) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.hostelsApi.search(query, filters);
+        return await mockApiService.get('/hostels/search/');
       } catch (error) {
         return handleApiError(error);
       }
@@ -184,7 +184,7 @@ export const universityService = {
   getById: async (id) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.universitiesApi.getById(id);
+        return await mockApiService.get(`/universities/${id}/`);
       } catch (error) {
         return handleApiError(error);
       }
@@ -204,7 +204,7 @@ export const roomService = {
   getByHostelId: async (hostelId) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.roomsApi.getByHostelId(hostelId);
+        return await mockApiService.get(`/hostels/${hostelId}/rooms/`);
       } catch (error) {
         return handleApiError(error);
       }
@@ -221,7 +221,7 @@ export const roomService = {
   checkAvailability: async (roomId, checkInDate, checkOutDate) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.roomsApi.checkAvailability(roomId, checkInDate, checkOutDate);
+        return await mockApiService.get(`/rooms/${roomId}/availability/`);
       } catch (error) {
         return handleApiError(error);
       }
@@ -268,7 +268,7 @@ export const bookingService = {
   create: async (bookingData, token) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.bookingsApi.create(bookingData);
+        return await mockApiService.post('/bookings/', bookingData);
       } catch (error) {
         return handleApiError(error);
       }
@@ -296,7 +296,7 @@ export const reviewService = {
   getByHostelId: async (hostelId) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.reviewsApi.getByHostelId(hostelId);
+        return await mockApiService.get(`/hostels/${hostelId}/reviews/`);
       } catch (error) {
         return handleApiError(error);
       }
@@ -313,7 +313,7 @@ export const reviewService = {
   create: async (reviewData, token) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.reviewsApi.create(reviewData);
+        return await mockApiService.post('/reviews/', reviewData);
       } catch (error) {
         return handleApiError(error);
       }

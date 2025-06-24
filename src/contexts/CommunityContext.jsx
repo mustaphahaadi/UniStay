@@ -28,19 +28,30 @@ export const CommunityProvider = ({ children }) => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(`${API_URL}/community/categories/`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        } else {
+          // Fallback categories
+          setCategories([
+            { id: 1, name: "General Discussion", description: "General topics and discussions" },
+            { id: 2, name: "Accommodation Tips", description: "Tips and advice for student accommodation" },
+            { id: 3, name: "University Life", description: "Discussions about university experiences" }
+          ]);
         }
-        const data = await response.json();
-        setCategories(data);
       } catch (err) {
         console.error("Error fetching categories:", err);
-        showError("Failed to load forum categories");
+        // Set fallback categories on error
+        setCategories([
+          { id: 1, name: "General Discussion", description: "General topics and discussions" },
+          { id: 2, name: "Accommodation Tips", description: "Tips and advice for student accommodation" },
+          { id: 3, name: "University Life", description: "Discussions about university experiences" }
+        ]);
       }
     };
 
     fetchCategories();
-  }, [showError]);
+  }, []);
 
   // Fetch topics for a specific category
   const fetchTopics = async (categoryId) => {

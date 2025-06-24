@@ -1,556 +1,287 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
-import { useLanguage } from "../contexts/LanguageContext"
-import { useNotification } from "../contexts/NotificationContext"
-import { Moon, Sun, Globe, Bell, Shield, User, Key } from "lucide-react"
+import { Bell, Shield, Moon, Sun, Globe, Key, Trash2, Save } from "lucide-react"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Switch } from "../components/ui/switch"
 
 const Settings = () => {
-  const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
-  const { language, changeLanguage, languages, t } = useLanguage()
-  const { success } = useNotification()
-
-  const [activeTab, setActiveTab] = useState("account")
-  const [notificationSettings, setNotificationSettings] = useState({
-    email: true,
-    push: true,
-    marketing: false,
-  })
-
-  const [privacySettings, setPrivacySettings] = useState({
-    shareProfile: true,
-    showActivity: true,
-    allowDataCollection: true,
-  })
-
-  const handleNotificationChange = (e) => {
-    const { name, checked } = e.target
-    setNotificationSettings((prev) => ({
-      ...prev,
-      [name]: checked,
-    }))
-    success("Notification settings updated")
-  }
-
-  const handlePrivacyChange = (e) => {
-    const { name, checked } = e.target
-    setPrivacySettings((prev) => ({
-      ...prev,
-      [name]: checked,
-    }))
-    success("Privacy settings updated")
-  }
-
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      // API call to delete account would go here
-      logout()
-      navigate("/")
-      success("Your account has been deleted")
+  const [settings, setSettings] = useState({
+    notifications: {
+      email: true,
+      push: true,
+      sms: false,
+      marketing: false
+    },
+    privacy: {
+      profileVisible: true,
+      showEmail: false,
+      showPhone: false
+    },
+    preferences: {
+      language: "en",
+      currency: "GHS",
+      timezone: "GMT"
     }
+  })
+
+  const handleNotificationChange = (key) => {
+    setSettings(prev => ({
+      ...prev,
+      notifications: {
+        ...prev.notifications,
+        [key]: !prev.notifications[key]
+      }
+    }))
+  }
+
+  const handlePrivacyChange = (key) => {
+    setSettings(prev => ({
+      ...prev,
+      privacy: {
+        ...prev.privacy,
+        [key]: !prev.privacy[key]
+      }
+    }))
+  }
+
+  const handlePreferenceChange = (key, value) => {
+    setSettings(prev => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        [key]: value
+      }
+    }))
+  }
+
+  const handleSaveSettings = () => {
+    // Save settings logic here
+    console.log("Saving settings:", settings)
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="md:flex md:items-center md:justify-between mb-8">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl">Settings</h1>
-        </div>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Settings</h1>
+        <Button onClick={handleSaveSettings} className="flex items-center gap-2">
+          <Save className="h-4 w-4" />
+          Save Changes
+        </Button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-        <div className="md:grid md:grid-cols-12">
-          {/* Sidebar */}
-          <div className="md:col-span-3 border-r border-gray-200 dark:border-gray-700">
-            <nav className="px-4 py-5 space-y-1">
-              <button
-                onClick={() => setActiveTab("account")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "account"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                <User className="mr-3 h-5 w-5" />
-                Account
-              </button>
-
-              <button
-                onClick={() => setActiveTab("appearance")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "appearance"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                {theme === "dark" ? <Moon className="mr-3 h-5 w-5" /> : <Sun className="mr-3 h-5 w-5" />}
-                Appearance
-              </button>
-
-              <button
-                onClick={() => setActiveTab("language")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "language"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Globe className="mr-3 h-5 w-5" />
-                Language
-              </button>
-
-              <button
-                onClick={() => setActiveTab("notifications")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "notifications"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Bell className="mr-3 h-5 w-5" />
-                Notifications
-              </button>
-
-              <button
-                onClick={() => setActiveTab("privacy")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "privacy"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Shield className="mr-3 h-5 w-5" />
-                Privacy
-              </button>
-
-              <button
-                onClick={() => setActiveTab("security")}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full ${
-                  activeTab === "security"
-                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-100"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Key className="mr-3 h-5 w-5" />
-                Security
-              </button>
-            </nav>
-          </div>
-
-          {/* Content */}
-          <div className="md:col-span-9 px-4 py-5 sm:p-6">
-            {activeTab === "account" && (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Notifications */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Account Information</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Update your account information and profile details.
+                <p className="font-medium">Email Notifications</p>
+                <p className="text-sm text-gray-600">Receive booking updates via email</p>
+              </div>
+              <Switch
+                checked={settings.notifications.email}
+                onCheckedChange={() => handleNotificationChange('email')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Push Notifications</p>
+                <p className="text-sm text-gray-600">Get instant notifications on your device</p>
+              </div>
+              <Switch
+                checked={settings.notifications.push}
+                onCheckedChange={() => handleNotificationChange('push')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">SMS Notifications</p>
+                <p className="text-sm text-gray-600">Receive important updates via SMS</p>
+              </div>
+              <Switch
+                checked={settings.notifications.sms}
+                onCheckedChange={() => handleNotificationChange('sms')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Marketing Communications</p>
+                <p className="text-sm text-gray-600">Receive promotional offers and updates</p>
+              </div>
+              <Switch
+                checked={settings.notifications.marketing}
+                onCheckedChange={() => handleNotificationChange('marketing')}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Privacy */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Privacy
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Profile Visibility</p>
+                <p className="text-sm text-gray-600">Make your profile visible to other users</p>
+              </div>
+              <Switch
+                checked={settings.privacy.profileVisible}
+                onCheckedChange={() => handlePrivacyChange('profileVisible')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Show Email</p>
+                <p className="text-sm text-gray-600">Display email on your public profile</p>
+              </div>
+              <Switch
+                checked={settings.privacy.showEmail}
+                onCheckedChange={() => handlePrivacyChange('showEmail')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Show Phone Number</p>
+                <p className="text-sm text-gray-600">Display phone number on your profile</p>
+              </div>
+              <Switch
+                checked={settings.privacy.showPhone}
+                onCheckedChange={() => handlePrivacyChange('showPhone')}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Appearance */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Dark Mode</p>
+                <p className="text-sm text-gray-600">Switch between light and dark themes</p>
+              </div>
+              <Switch
+                checked={theme === 'dark'}
+                onCheckedChange={toggleTheme}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preferences */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Preferences
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Language</label>
+              <select
+                value={settings.preferences.language}
+                onChange={(e) => handlePreferenceChange('language', e.target.value)}
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="en">English</option>
+                <option value="tw">Twi</option>
+                <option value="fr">French</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Currency</label>
+              <select
+                value={settings.preferences.currency}
+                onChange={(e) => handlePreferenceChange('currency', e.target.value)}
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="GHS">Ghana Cedi (GHS)</option>
+                <option value="USD">US Dollar (USD)</option>
+                <option value="EUR">Euro (EUR)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Timezone</label>
+              <select
+                value={settings.preferences.timezone}
+                onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="GMT">GMT (Ghana)</option>
+                <option value="UTC">UTC</option>
+                <option value="EST">EST</option>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Security
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                Change Password
+              </Button>
+              
+              <Button variant="outline" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Two-Factor Authentication
+              </Button>
+            </div>
+
+            <div className="border-t pt-4 mt-6">
+              <h3 className="text-lg font-semibold text-red-600 mb-4">Danger Zone</h3>
+              <div className="bg-red-50 p-4 rounded-lg">
+                <p className="text-sm text-red-700 mb-4">
+                  Once you delete your account, there is no going back. Please be certain.
                 </p>
-
-                <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                  <div className="sm:col-span-3">
-                    <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      First name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="first_name"
-                        id="first_name"
-                        defaultValue={user?.first_name}
-                        className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-3">
-                    <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Last name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="last_name"
-                        id="last_name"
-                        defaultValue={user?.last_name}
-                        className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-4">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Email address
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        defaultValue={user?.email}
-                        className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-4">
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Phone number
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        defaultValue={user?.phone}
-                        className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-                  >
-                    Save changes
-                  </button>
-                </div>
-
-                <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-6">
-                  <h3 className="text-lg font-medium text-red-600 dark:text-red-400">Delete Account</h3>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Once you delete your account, there is no going back. Please be certain.
-                  </p>
-                  <div className="mt-3">
-                    <button
-                      type="button"
-                      onClick={handleDeleteAccount}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800"
-                    >
-                      Delete account
-                    </button>
-                  </div>
-                </div>
+                <Button variant="destructive" className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Delete Account
+                </Button>
               </div>
-            )}
-
-            {activeTab === "appearance" && (
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Appearance</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Customize how the application looks for you.
-                </p>
-
-                <div className="mt-6">
-                  <div className="flex items-center">
-                    <button
-                      type="button"
-                      onClick={toggleTheme}
-                      className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-                      role="switch"
-                      aria-checked={theme === "dark"}
-                      style={{
-                        backgroundColor: theme === "dark" ? "#4B5563" : "#10B981",
-                      }}
-                    >
-                      <span className="sr-only">Toggle dark mode</span>
-                      <span
-                        aria-hidden="true"
-                        className={`${
-                          theme === "dark" ? "translate-x-5" : "translate-x-0"
-                        } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
-                      >
-                        {theme === "dark" ? (
-                          <Moon className="h-3 w-3 m-1 text-gray-600" />
-                        ) : (
-                          <Sun className="h-3 w-3 m-1 text-yellow-500" />
-                        )}
-                      </span>
-                    </button>
-                    <span className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
-                      {theme === "dark" ? "Dark mode enabled" : "Light mode enabled"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "language" && (
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Language</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Choose your preferred language for the application.
-                </p>
-
-                <div className="mt-6">
-                  <fieldset>
-                    <legend className="sr-only">Language</legend>
-                    <div className="space-y-4">
-                      {languages.map((lang) => (
-                        <div key={lang.code} className="flex items-center">
-                          <input
-                            id={lang.code}
-                            name="language"
-                            type="radio"
-                            checked={language === lang.code}
-                            onChange={() => changeLanguage(lang.code)}
-                            className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 dark:border-gray-600"
-                          />
-                          <label
-                            htmlFor={lang.code}
-                            className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >
-                            {lang.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </fieldset>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "notifications" && (
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Notification Settings</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage how you receive notifications.</p>
-
-                <div className="mt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="email"
-                          name="email"
-                          type="checkbox"
-                          checked={notificationSettings.email}
-                          onChange={handleNotificationChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="email" className="font-medium text-gray-700 dark:text-gray-300">
-                          Email notifications
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          Receive booking updates and important announcements via email.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="push"
-                          name="push"
-                          type="checkbox"
-                          checked={notificationSettings.push}
-                          onChange={handleNotificationChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="push" className="font-medium text-gray-700 dark:text-gray-300">
-                          Push notifications
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">Receive real-time updates on your device.</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="marketing"
-                          name="marketing"
-                          type="checkbox"
-                          checked={notificationSettings.marketing}
-                          onChange={handleNotificationChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="marketing" className="font-medium text-gray-700 dark:text-gray-300">
-                          Marketing emails
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          Receive offers, promotions, and news about new features.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "privacy" && (
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Privacy Settings</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Control how your information is used and shared.
-                </p>
-
-                <div className="mt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="shareProfile"
-                          name="shareProfile"
-                          type="checkbox"
-                          checked={privacySettings.shareProfile}
-                          onChange={handlePrivacyChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="shareProfile" className="font-medium text-gray-700 dark:text-gray-300">
-                          Share profile with hostel owners
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          Allow hostel owners to see your profile information when you make a booking.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="showActivity"
-                          name="showActivity"
-                          type="checkbox"
-                          checked={privacySettings.showActivity}
-                          onChange={handlePrivacyChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="showActivity" className="font-medium text-gray-700 dark:text-gray-300">
-                          Show activity status
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          Let others know when you're online or recently active.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="allowDataCollection"
-                          name="allowDataCollection"
-                          type="checkbox"
-                          checked={privacySettings.allowDataCollection}
-                          onChange={handlePrivacyChange}
-                          className="focus:ring-teal-500 h-4 w-4 text-teal-600 border-gray-300 rounded dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="allowDataCollection" className="font-medium text-gray-700 dark:text-gray-300">
-                          Allow data collection for service improvement
-                        </label>
-                        <p className="text-gray-500 dark:text-gray-400">
-                          We use this data to improve our services and your experience.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "security" && (
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Security Settings</h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Manage your account security and password.
-                </p>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Change Password</h3>
-                  <div className="mt-2 space-y-4">
-                    <div>
-                      <label
-                        htmlFor="current_password"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                      >
-                        Current Password
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="password"
-                          name="current_password"
-                          id="current_password"
-                          className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="new_password"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                      >
-                        New Password
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="password"
-                          name="new_password"
-                          id="new_password"
-                          className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="confirm_password"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                      >
-                        Confirm New Password
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          type="password"
-                          name="confirm_password"
-                          id="confirm_password"
-                          className="shadow-sm focus:ring-teal-500 focus:border-teal-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <button
-                        type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-                      >
-                        Update Password
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-8">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Two-Factor Authentication</h3>
-                    <div className="mt-2">
-                      <button
-                        type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-                      >
-                        Enable Two-Factor Authentication
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

@@ -60,7 +60,7 @@ const About = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50">
       {/* Hero Section */}
       <div className="gradient-primary text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -83,7 +83,7 @@ const About = () => {
               return (
                 <Card key={index} className="glass border-0 shadow-xl text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <CardContent className="p-6">
-                    <Icon className="w-8 h-8 text-violet-600 mx-auto mb-3" />
+                    <Icon className="w-8 h-8 text-green-700 mx-auto mb-3" />
                     <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
                     <div className="text-sm text-gray-600">{stat.label}</div>
                   </CardContent>
@@ -117,7 +117,7 @@ const About = () => {
                     Our mission is to ensure every student finds their perfect home away from home.
                   </p>
                 </div>
-                <div className="aspect-video bg-gradient-to-br from-violet-400 to-indigo-500 rounded-lg flex items-center justify-center">
+                <div className="aspect-video bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
                   <span className="text-white text-lg font-medium">Our Story Image</span>
                 </div>
               </div>
@@ -141,8 +141,8 @@ const About = () => {
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center mr-4 mt-1">
-                      <Shield className="w-4 h-4 text-violet-600" />
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <Shield className="w-4 h-4 text-green-700" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Safe & Secure Housing</h3>
@@ -159,8 +159,8 @@ const About = () => {
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-4 mt-1">
-                      <Users className="w-4 h-4 text-indigo-600" />
+                    <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <Users className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Supportive Community</h3>
@@ -220,11 +220,11 @@ const About = () => {
             {team.map((member, index) => (
               <Card key={index} className="glass border-0 shadow-xl text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-8">
-                  <div className="w-24 h-24 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mx-auto mb-6 flex items-center justify-center">
                     <span className="text-white font-semibold text-lg">{member.name.split(' ').map(n => n[0]).join('')}</span>
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                  <p className="text-violet-600 font-medium mb-4">{member.role}</p>
+                  <p className="text-green-700 font-medium mb-4">{member.role}</p>
                   <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
                 </CardContent>
               </Card>

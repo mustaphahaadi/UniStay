@@ -148,7 +148,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3 py-2 rounded-md text-sm font-medium bg-white text-violet-600 hover:bg-gray-100"
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-white text-green-700 hover:bg-gray-100"
                 >
                   {t("nav.register")}
                 </Link>
@@ -305,7 +305,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium bg-white text-violet-600 hover:bg-gray-100 mt-2"
+                  className="block px-3 py-2 rounded-md text-base font-medium bg-white text-green-700 hover:bg-gray-100 mt-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Register

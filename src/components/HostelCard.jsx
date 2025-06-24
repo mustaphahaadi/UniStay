@@ -87,7 +87,7 @@ const HostelCard = ({ hostel }) => {
 
         <div className="flex items-start text-gray-600 mb-2">
           <MapPin className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-          <p>{hostel.location}</p>
+          <p>{typeof hostel.location === 'string' ? hostel.location : hostel.address || 'Location not specified'}</p>
         </div>
 
         <div className="flex items-start text-gray-600 mb-2">

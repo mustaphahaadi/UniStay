@@ -58,7 +58,7 @@ const DevTools = () => {
         {/* Header */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full px-3 py-2 bg-violet-700 hover:bg-violet-600 transition-colors"
+          className="flex items-center justify-between w-full px-3 py-2 bg-green-800 hover:bg-green-700 transition-colors"
         >
           <div className="flex items-center">
             <TestTube className="h-4 w-4 mr-2" />
@@ -93,10 +93,10 @@ const DevTools = () => {
                 <h3 className="font-medium text-sm">Quick Login</h3>
               </div>
               <div className="grid grid-cols-2 gap-1 ml-6">
-                <button onClick={() => quickLogin('user')} className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-xs">
+                <button onClick={() => quickLogin('user')} className="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
                   Student
                 </button>
-                <button onClick={() => quickLogin('manager')} className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-xs">
+                <button onClick={() => quickLogin('manager')} className="px-2 py-1 bg-forest-600 hover:bg-forest-700 rounded text-xs">
                   Manager
                 </button>
                 <button onClick={() => quickLogin('admin')} className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">
@@ -135,10 +135,10 @@ const DevTools = () => {
                 <h3 className="font-medium text-sm">Mock Data</h3>
               </div>
               <div className="grid grid-cols-2 gap-1 ml-6">
-                <button onClick={() => {localStorage.setItem('mockBookings', '5'); window.location.reload()}} className="px-2 py-1 bg-violet-600 hover:bg-violet-700 rounded text-xs">
+                <button onClick={() => {localStorage.setItem('mockBookings', '5'); window.location.reload()}} className="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
                   Add Bookings
                 </button>
-                <button onClick={() => {localStorage.setItem('mockFavorites', '3'); window.location.reload()}} className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-xs">
+                <button onClick={() => {localStorage.setItem('mockFavorites', '3'); window.location.reload()}} className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-xs">
                   Add Favorites
                 </button>
                 <button onClick={() => {localStorage.clear(); window.location.reload()}} className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs col-span-2">
