@@ -22,7 +22,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-teal-600 dark:bg-gray-800 text-white shadow-md">
+    <nav className="gradient-primary text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -33,27 +33,39 @@ const Navbar = () => {
             <div className="hidden md:ml-6 md:flex md:space-x-4">
               <Link
                 to="/"
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
               >
                 {t("nav.home")}
               </Link>
               <Link
                 to="/hostels"
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
               >
                 {t("nav.hostels")}
               </Link>
               <Link
-                to="/search"
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                to="/about"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
               >
-                {t("nav.search")}
+                About
               </Link>
               <Link
-                to="/help"
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                to="/pricing"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
               >
-                {t("nav.help")}
+                Pricing
+              </Link>
+              <Link
+                to="/blog"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
+              >
+                Blog
+              </Link>
+              <Link
+                to="/faq"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
+              >
+                FAQ
               </Link>
             </div>
           </div>
@@ -61,7 +73,7 @@ const Navbar = () => {
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-teal-700 dark:hover:bg-gray-700"
+              className="p-2 rounded-md hover:bg-white/10"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -71,7 +83,7 @@ const Navbar = () => {
             <div className="relative">
               <button
                 onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                className="p-2 rounded-md hover:bg-teal-700 dark:hover:bg-gray-700 flex items-center"
+                className="p-2 rounded-md hover:bg-white/10 flex items-center"
                 aria-label="Select language"
                 aria-expanded={isLanguageMenuOpen}
               >
@@ -107,20 +119,20 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to={isManager() ? "/manager" : "/dashboard"}
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
                 >
                   {t("nav.dashboard")}
                 </Link>
                 <Link
                   to={isManager() ? "/manager/settings" : "/dashboard/settings"}
-                  className="p-2 rounded-md hover:bg-teal-700 dark:hover:bg-gray-700"
+                  className="p-2 rounded-md hover:bg-white/10"
                   aria-label="Settings"
                 >
                   <Settings className="h-5 w-5" />
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
                 >
                   <LogOut className="h-4 w-4 mr-1" />
                   {t("nav.logout")}
@@ -130,13 +142,13 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-gray-700"
+                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
                 >
                   {t("nav.login")}
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3 py-2 rounded-md text-sm font-medium bg-white text-teal-600 hover:bg-gray-100 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300"
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-white text-violet-600 hover:bg-gray-100"
                 >
                   {t("nav.register")}
                 </Link>
@@ -146,7 +158,7 @@ const Navbar = () => {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-teal-700 dark:hover:bg-gray-700 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -293,7 +305,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium bg-white text-teal-600 hover:bg-gray-100 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 mt-2"
+                  className="block px-3 py-2 rounded-md text-base font-medium bg-white text-violet-600 hover:bg-gray-100 mt-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Register

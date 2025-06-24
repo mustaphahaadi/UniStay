@@ -93,8 +93,8 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Search className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Search className="h-8 w-8 text-violet-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Search & Filter</h3>
                 <p className="text-gray-600 mb-6">
@@ -111,8 +111,8 @@ const Home = () => {
 
             <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Star className="h-8 w-8 text-green-600" />
+                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Star className="h-8 w-8 text-indigo-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Top Rated</h3>
                 <p className="text-gray-600 mb-6">
@@ -129,8 +129,8 @@ const Home = () => {
 
             <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-8 w-8 text-indigo-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Trending</h3>
                 <p className="text-gray-600 mb-6">
@@ -199,7 +199,7 @@ const Home = () => {
               </p>
             </div>
             <Link to="/hostels">
-              <Button size="lg" className="bg-ghana-600 hover:bg-ghana-700 mt-6 md:mt-0">
+              <Button size="lg" className="gradient-primary text-white border-0 mt-6 md:mt-0">
                 View All Hostels
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -233,10 +233,10 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center group">
               <div className="relative mb-8">
-                <div className="w-20 h-20 bg-ghana-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                  <Search className="h-10 w-10 text-ghana-600" />
+                <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                  <Search className="h-10 w-10 text-violet-600" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-ghana-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-violet-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                   1
                 </div>
               </div>
@@ -248,10 +248,10 @@ const Home = () => {
 
             <div className="text-center group">
               <div className="relative mb-8">
-                <div className="w-20 h-20 bg-ghana-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                  <Building className="h-10 w-10 text-ghana-600" />
+                <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                  <Building className="h-10 w-10 text-violet-600" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-ghana-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-violet-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                   2
                 </div>
               </div>
@@ -263,10 +263,10 @@ const Home = () => {
 
             <div className="text-center group">
               <div className="relative mb-8">
-                <div className="w-20 h-20 bg-ghana-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-10 w-10 text-ghana-600" />
+                <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                  <MapPin className="h-10 w-10 text-violet-600" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-ghana-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-violet-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                   3
                 </div>
               </div>
@@ -283,7 +283,7 @@ const Home = () => {
       <TestimonialsSection />
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-ghana-600 to-ghana-500">
+      <section className="py-20 gradient-primary">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -296,20 +296,22 @@ const Home = () => {
               <Link to="/hostels">
                 <Button 
                   size="lg"
-                  className="bg-white text-ghana-600 hover:bg-gray-100 h-14 px-8 text-lg font-semibold"
+                  className="bg-white text-violet-600 hover:bg-gray-100 h-14 px-8 text-lg font-semibold"
                 >
                   Browse Hostels
                   <Search className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button 
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-ghana-600 h-14 px-8 text-lg font-semibold"
-              >
-                List Your Property
-                <Building className="ml-2 h-5 w-5" />
-              </Button>
+              <Link to="/list-property">
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white hover:text-violet-600 h-14 px-8 text-lg font-semibold"
+                >
+                  List Your Property
+                  <Building className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -35,6 +35,11 @@ import TopicPosts from './pages/TopicPosts'
 import MaintenanceRequests from './pages/MaintenanceRequests'
 import Help from './pages/Help'
 import ErrorPage from "./pages/ErrorPage"
+import BookingConfirmation from './pages/BookingConfirmation'
+import ListProperty from './pages/ListProperty'
+import Pricing from './pages/Pricing'
+import FAQ from './pages/FAQ'
+import Blog from './pages/Blog'
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import DevTools from "./components/DevTools"
@@ -293,6 +298,46 @@ const router = createBrowserRouter([
     element: (
       <RootLayout>
         <Help />
+      </RootLayout>
+    )
+  },
+  {
+    path: "/booking-confirmation/:bookingId",
+    element: (
+      <RootLayout>
+        <BookingConfirmation />
+      </RootLayout>
+    )
+  },
+  {
+    path: "/list-property",
+    element: (
+      <RootLayout>
+        <ListProperty />
+      </RootLayout>
+    )
+  },
+  {
+    path: "/pricing",
+    element: (
+      <RootLayout>
+        <Pricing />
+      </RootLayout>
+    )
+  },
+  {
+    path: "/faq",
+    element: (
+      <RootLayout>
+        <FAQ />
+      </RootLayout>
+    )
+  },
+  {
+    path: "/blog",
+    element: (
+      <RootLayout>
+        <Blog />
       </RootLayout>
     )
   },

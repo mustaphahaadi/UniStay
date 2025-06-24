@@ -26,14 +26,24 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = async (email, password) => {
+  const login = async (emailOrUserData, password) => {
+    // Support direct user object for dev tools
+    if (typeof emailOrUserData === 'object') {
+      const userData = emailOrUserData;
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", password || 'dev-token');
+      toast.success(`Logged in as ${userData.role}!`);
+      return true;
+    }
+
     try {
       const response = await fetch('/api/auth/login/', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailOrUserData, password }),
       })
 
       if (!response.ok) {

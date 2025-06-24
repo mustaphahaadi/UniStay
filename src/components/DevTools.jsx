@@ -1,17 +1,56 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Settings, ChevronDown, ChevronUp, UserCog } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, ChevronDown, ChevronUp, UserCog, TestTube, Database, Eye, Zap } from 'lucide-react';
 
 /**
- * Development tools component for easy role switching and authentication testing
+ * Development tools component for testing system without authentication
  */
 const DevTools = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, switchRole, isAuthenticated } = useAuth();
+  const [bypassAuth, setBypassAuth] = useState(localStorage.getItem('devBypass') === 'true');
+  const { user, login, logout, switchRole, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const toggleBypass = () => {
+    const newBypass = !bypassAuth;
+    setBypassAuth(newBypass);
+    localStorage.setItem('devBypass', newBypass.toString());
+  };
 
   if (process.env.NODE_ENV === 'production') {
-    return null; // Don't show in production
+    return null;
   }
+
+  const quickLogin = (role) => {
+    const testUsers = {
+      user: { id: 1, email: 'student@test.com', name: 'Test Student', role: 'user' },
+      manager: { id: 2, email: 'manager@test.com', name: 'Test Manager', role: 'manager' },
+      admin: { id: 3, email: 'admin@test.com', name: 'Test Admin', role: 'admin' }
+    };
+    login(testUsers[role], 'fake-token');
+  };
+
+  const testRoutes = [
+    { path: '/dashboard', label: 'User Dashboard', auth: true },
+    { path: '/manager', label: 'Manager Dashboard', auth: true },
+    { path: '/admin', label: 'Admin Dashboard', auth: true },
+    { path: '/hostels', label: 'Hostels', auth: false },
+    { path: '/booking-confirmation/123', label: 'Booking Confirm', auth: false },
+    { path: '/list-property', label: 'List Property', auth: false },
+    { path: '/pricing', label: 'Pricing', auth: false },
+    { path: '/faq', label: 'FAQ', auth: false },
+    { path: '/blog', label: 'Blog', auth: false }
+  ];
+
+  const navigateToRoute = (path, requiresAuth) => {
+    if (requiresAuth && !isAuthenticated) {
+      quickLogin('user');
+      setTimeout(() => navigate(path), 100);
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -19,72 +58,101 @@ const DevTools = () => {
         {/* Header */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full px-4 py-2 bg-teal-700 hover:bg-teal-600 transition-colors"
+          className="flex items-center justify-between w-full px-3 py-2 bg-violet-700 hover:bg-violet-600 transition-colors"
         >
           <div className="flex items-center">
-            <Settings className="h-5 w-5 mr-2" />
-            <span className="font-medium">Dev Tools</span>
+            <TestTube className="h-4 w-4 mr-2" />
+            <span className="font-medium text-sm">Dev Tools</span>
           </div>
-          {isOpen ? (
-            <ChevronUp className="h-5 w-5" />
-          ) : (
-            <ChevronDown className="h-5 w-5" />
-          )}
+          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
 
         {/* Content */}
         {isOpen && (
-          <div className="p-4">
+          <div className="p-4 max-h-96 overflow-y-auto">
+            {/* Auth Bypass */}
             <div className="mb-4">
-              <div className="flex items-center mb-2">
-                <UserCog className="h-5 w-5 mr-2 text-teal-400" />
-                <h3 className="font-medium">User Role</h3>
-              </div>
-              {user ? (
-                <div className="flex flex-col space-y-2 ml-7">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="role-user"
-                      name="role"
-                      checked={user.role === 'user'}
-                      onChange={() => switchRole('user')}
-                      className="mr-2"
-                    />
-                    <label htmlFor="role-user">User</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="role-manager"
-                      name="role"
-                      checked={user.role === 'manager'}
-                      onChange={() => switchRole('manager')}
-                      className="mr-2"
-                    />
-                    <label htmlFor="role-manager">Manager</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="role-admin"
-                      name="role"
-                      checked={user.role === 'admin'}
-                      onChange={() => switchRole('admin')}
-                      className="mr-2"
-                    />
-                    <label htmlFor="role-admin">Admin</label>
-                  </div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <Settings className="h-4 w-4 mr-2 text-orange-400" />
+                  <h3 className="font-medium text-sm">Auth Bypass</h3>
                 </div>
-              ) : (
-                <p className="text-gray-400 ml-7">Please log in to switch roles</p>
-              )}
+                <button
+                  onClick={toggleBypass}
+                  className={`px-2 py-1 rounded text-xs ${bypassAuth ? 'bg-emerald-600' : 'bg-red-600'}`}
+                >
+                  {bypassAuth ? 'ON' : 'OFF'}
+                </button>
+              </div>
             </div>
 
-            <div className="text-xs text-gray-400 mt-4 border-t border-gray-700 pt-2">
-              <p>Current user: {user?.email || 'Not logged in'}</p>
+            {/* Quick Login */}
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <Zap className="h-4 w-4 mr-2 text-yellow-400" />
+                <h3 className="font-medium text-sm">Quick Login</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-1 ml-6">
+                <button onClick={() => quickLogin('user')} className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-xs">
+                  Student
+                </button>
+                <button onClick={() => quickLogin('manager')} className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-xs">
+                  Manager
+                </button>
+                <button onClick={() => quickLogin('admin')} className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">
+                  Admin
+                </button>
+                <button onClick={logout} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs">
+                  Logout
+                </button>
+              </div>
+            </div>
+
+            {/* Test Routes */}
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <Eye className="h-4 w-4 mr-2 text-cyan-400" />
+                <h3 className="font-medium text-sm">Test Routes</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-1 ml-6">
+                {testRoutes.map((route) => (
+                  <button
+                    key={route.path}
+                    onClick={() => navigateToRoute(route.path, route.auth)}
+                    className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs text-left flex items-center justify-between"
+                  >
+                    <span>{route.label}</span>
+                    {route.auth && <span className="text-orange-400 text-xs">🔒</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mock Data */}
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <Database className="h-4 w-4 mr-2 text-purple-400" />
+                <h3 className="font-medium text-sm">Mock Data</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-1 ml-6">
+                <button onClick={() => {localStorage.setItem('mockBookings', '5'); window.location.reload()}} className="px-2 py-1 bg-violet-600 hover:bg-violet-700 rounded text-xs">
+                  Add Bookings
+                </button>
+                <button onClick={() => {localStorage.setItem('mockFavorites', '3'); window.location.reload()}} className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-xs">
+                  Add Favorites
+                </button>
+                <button onClick={() => {localStorage.clear(); window.location.reload()}} className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs col-span-2">
+                  Clear & Reload
+                </button>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="text-xs text-gray-400 border-t border-gray-700 pt-2">
+              <p>User: {user?.name || 'Guest'}</p>
               <p>Role: {user?.role || 'None'}</p>
-              <p>Auth status: {isAuthenticated ? 'Authenticated' : 'Not authenticated'}</p>
+              <p>Auth: {isAuthenticated ? '✅' : '❌'}</p>
+              <p>Bypass: {bypassAuth ? '🔓' : '🔒'}</p>
             </div>
           </div>
         )}

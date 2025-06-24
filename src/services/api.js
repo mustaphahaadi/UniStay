@@ -1,8 +1,8 @@
-import { API_URL, FEATURES } from '../config';
-import * as mockApi from './mockApi/mockApiService';
+import { API_URL } from '../config';
+import { mockApiService } from './mockApiService';
 
-// Check if we should use mock API
-const USE_MOCK_API = FEATURES.USE_MOCK_API;
+// Use mock API in development when backend is not available
+const USE_MOCK_API = process.env.NODE_ENV === 'development';
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
@@ -93,7 +93,7 @@ export const hostelService = {
   getFeatured: async () => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.hostelsApi.getFeatured();
+        return await mockApiService.get('/hostels/featured/');
       } catch (error) {
         return handleApiError(error);
       }
@@ -110,7 +110,7 @@ export const hostelService = {
   getById: async (id) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.hostelsApi.getById(id);
+        return await mockApiService.get(`/hostels/${id}/`);
       } catch (error) {
         return handleApiError(error);
       }
@@ -167,7 +167,7 @@ export const universityService = {
   getAll: async () => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.universitiesApi.getAll();
+        return await mockApiService.get('/universities/');
       } catch (error) {
         return handleApiError(error);
       }
@@ -246,7 +246,7 @@ export const bookingService = {
   getByUserId: async (userId, token) => {
     if (USE_MOCK_API) {
       try {
-        return await mockApi.bookingsApi.getByUserId(userId);
+        return await mockApiService.get('/bookings/user/');
       } catch (error) {
         return handleApiError(error);
       }
